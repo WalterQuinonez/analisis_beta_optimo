@@ -28,11 +28,12 @@ import torch.nn as nn
 
 
 #parametros de las curvas
-a_pot = 197.99
-a_dep = 197.99
+a_pot_list  = [48.83,98.55,197.99 ]
+a_dep_list = [48.83,98.55,197.99 ]
+betas = [250,350,750]
 G0_distrbtn='random'
-pulsos_pot = 200
-pulsos_dep = 200
+pulsos_pot_list = [50,100,200]
+pulsos_dep_list = [50,100,200]
 concavidad_pot = 'pos'
 concavidad_dep = 'neg'
 Rhigh = 10000
@@ -41,105 +42,124 @@ Gmin = 1/Rhigh
 Gmax = 1/Rlow
 
 
-#genero curvas pot/dep
-pot,dep, ratio , inl_pot , inl_dep = generar_curvas_pot_dep (  
-                            pulsos_pot, 
-                            pulsos_dep, 
-                            a_pot, 
-                            a_dep, 
-                            Gmin, 
-                            Gmax, 
-                            concavidad_dep, 
-                            concavidad_pot)
-
-print(f"inl pot {inl_pot}")
-print(f"inl dep {inl_dep}")
-
-fig, ax = plt.subplots()
-ax.plot(np.arange(len(pot)) , pot)
-ax.plot(np.arange(len(pot)) + len(pot) , dep)
 
 
 amplitud_imagen  = 1
 X_train = np.load('X_train_mnist.npy')*amplitud_imagen
 y_train = np.load('y_train_mnist.npy')
 
-wij = np.zeros([len(pot) , len(dep)])
-for i in range(len(pot)):
-    wij[i] = pot[i] - dep
 
 
-voltajes = np.unique (X_train)
-histograma = np.zeros([len(voltajes) , len(wij.flatten())])
-for i in range(len(voltajes)):
-    for j in range(len(wij.flatten())):
-        histograma[i, j] = voltajes[i]* (wij.flatten())[j]     
-        
-        
-        
-"""wij tienen todas las combinaciones posibles de los pesos"""
+
 fig, ax2 = plt.subplots()
-ax2.hist(wij.flatten(), 
+ax2.hist(X_train.flatten(), 
           bins=50,
           alpha = 0.8)  
-ax2.set_xlabel(r'w_ij posibles')
+ax2.set_xlabel(r'pixeles imagenes')
 ax2.set_ylabel('counts')
-ax2.legend()
-print(np.sqrt(np.mean(wij.flatten()**2)))
 
-
-"""Histograma tienen todas las combinaciones posibles de V_j* W_ij"""
+fig, ax = plt.subplots()
 fig, ax2 = plt.subplots()
-ax2.hist(histograma.flatten(), 
-          bins=50,
-          alpha = 0.8)  
-ax2.set_xlabel(r'V_j * W_ij posibles')
-ax2.set_ylabel('counts')
-ax2.legend()
-print(np.sqrt(np.mean(histograma.flatten()**2)))
+fig, ax3 = plt.subplots()
+fig, ax4 = plt.subplots()
+fig, ax5 = plt.subplots()
+
+for r in range(3):
+    a_pot = a_pot_list[r]
+    a_dep = a_dep_list[r]
+    pulsos_pot = pulsos_pot_list[r]
+    pulsos_dep = pulsos_dep_list[r]
 
 
+    #genero curvas pot/dep
+    pot,dep, ratio , inl_pot , inl_dep = generar_curvas_pot_dep (  
+                                pulsos_pot, 
+                                pulsos_dep, 
+                                a_pot, 
+                                a_dep, 
+                                Gmin, 
+                                Gmax, 
+                                concavidad_dep, 
+                                concavidad_pot)
+    
+    print(f"inl pot {inl_pot}")
+    print(f"inl dep {inl_dep}")
+    
+    ax.plot(np.arange(len(pot)) , pot)
+    ax.plot(np.arange(len(pot)) + len(pot) , dep)    
+
+    wij = np.zeros([len(pot) , len(dep)])
+    for i in range(len(pot)):
+        wij[i] = pot[i] - dep
+    
+    
+    voltajes = np.unique (X_train)
+    histograma = np.zeros([len(voltajes) , len(wij.flatten())])
+    for i in range(len(voltajes)):
+        for j in range(len(wij.flatten())):
+            histograma[i, j] = voltajes[i]* (wij.flatten())[j]     
+            
+            
+            
+    """wij tienen todas las combinaciones posibles de los pesos"""
+    ax2.hist(wij.flatten(), 
+              bins=50,
+              alpha = 0.8)  
+    ax2.set_xlabel(r'w_ij posibles')
+    ax2.set_ylabel('counts')
+    ax2.legend()
+    print(np.sqrt(np.mean(wij.flatten()**2)))
+    
+    
+    """Histograma tienen todas las combinaciones posibles de V_j* W_ij"""
+    ax3.hist(histograma.flatten(), 
+              bins=50,
+              alpha = 0.8)  
+    ax3.set_xlabel(r'V_j * W_ij posibles')
+    ax3.set_ylabel('counts')
+    ax3.legend()
+    print(np.sqrt(np.mean(histograma.flatten()**2)))
+    
+    
+    
+    
+    muestras = 1000000
+    
+    mean_x =  []
+    softmax = []
+    softmax_min= []
+    softmax_max= []
+    
+    x = histograma.flatten()
+    corrientes = np.zeros(muestras)
+    for k in range(muestras):   
+        corrientes [k]= np.sum( np.random.choice(x, size=28*28, replace=True) )  
+           
+    """corrientes lo construyo con terminos tomados al azar de todas los posibles V_j* W_ij
+        en histograma"""
+    ax4.hist(corrientes, 
+              bins=50,
+              alpha = 0.8)  
+    ax4.set_xlabel(r'corrientes (suma random)')
+    ax4.set_ylabel('counts')
+
+    ax5.hist(betas[r] * corrientes, 
+              bins=50,
+              alpha = 0.8)  
+    ax4.set_xlabel(r'beta * corrientes (suma random)')
+    ax4.set_ylabel('counts')
 
 
-muestras = 1000000
-
-mean_x =  []
-softmax = []
-softmax_min= []
-softmax_max= []
-
-x = histograma.flatten()
-corrientes = np.zeros(muestras)
-for k in range(muestras):   
-    corrientes [k]= np.sum( np.random.choice(x, size=28*28, replace=True) )  
-       
-"""corrientes lo construyo con terminos tomados al azar de todas los posibles V_j* W_ij
-    en histograma"""
-fig, ax2 = plt.subplots()
-ax2.hist(corrientes, 
-          bins=50,
-          alpha = 0.8)  
-ax2.set_xlabel(r'corrientes (suma random)')
-ax2.set_ylabel('counts')
-print(np.sqrt(np.mean(corrientes**2)))
-
-print(f"media corriente {np.mean(corrientes)}")
-print(f"std corriente {np.std(corrientes)}")
-print(f"beta optimo {np.abs(1/np.mean(corrientes))} ")
-print(f"beta optimo {np.abs(1/np.std(corrientes)) + 5/np.mean(corrientes) } ")
-print("#######################################################")
-print(f"RMS corriente {np.sqrt(np.mean(corrientes**2))}")
-print(f"otro beta optimo {1/np.sqrt(np.mean(corrientes**2))}")
+    print(f"desviacon Wij posibles {np.std(wij.flatten())}")
+    print(f"media corriente {np.mean(corrientes)}")
+    print(f"std corriente {np.std(corrientes)}")
+    print(f"beta optimo {np.abs(1/np.mean(corrientes))} ")
+    print(f"beta optimo {np.abs(1/(np.std(corrientes)) + np.mean(corrientes) ) } ")
+    print("#######################################################")
+    print(f"RMS corriente {np.sqrt(np.mean(corrientes**2))}")
+    print(f"otro beta optimo {1/np.sqrt(np.mean(corrientes**2))}")
 
 
-beta = -750
-fig, ax2 = plt.subplots()
-ax2.hist(beta * corrientes, 
-          bins=50,
-          alpha = 0.8)  
-ax2.set_xlabel(r'corrientes (suma random) * beta')
-ax2.set_ylabel('counts')
-print(np.sqrt(np.mean(corrientes**2)))
 
 
 # betas =np.arange(1,2000,100)
