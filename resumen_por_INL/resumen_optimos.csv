@@ -1,0 +1,7 @@
+inl_tag,carpeta,pulsos_pot,a_pot,inl_pot_real,beta_optimo,acc_optima
+1e-2,beta_grid_search_SP_INL_1e-2_p_100,100,98.55,0.009984686048393763,350.0,0.90906656
+1e-2,beta_grid_search_SP_INL_1e-2_p_200,200,197.99,0.009996308077117336,750.0,0.9162667
+1e-2,beta_grid_search_SP_INL_1e-2_p_50,50,48.83,0.009959610328542564,250.0,0.8946592
+2e-1,beta_grid_search_SP_INL_2e-1_p_100,100,11.82,0.1999998164113142,100.0,0.86573416
+2e-1,beta_grid_search_SP_INL_2e-1_p_200,200,23.76,0.20001388454499738,200.0,0.8895958
+2e-1,beta_grid_search_SP_INL_2e-1_p_50,50,5.85,0.1999355340856478,100.0,0.8478983
