@@ -16,6 +16,48 @@ from torch.utils.data import DataLoader, Subset, TensorDataset
 from sklearn.model_selection import KFold
 
 
+# =============================================================================
+# Formula analitica de beta_optimo ya encontrada en este proyecto (ver
+# `formula_beta_optimo_propuesta/coeficientes_regresion_v2.csv`, modelo
+# `combinado_sigmaW_pasomedio`, R²=0.938 sobre 18 curvas, validada contra 30
+# combinaciones en `mejora_search_best_beta/validacion_formula_v2_30combos.csv`).
+# Usada por `MemDNN.search_best_beta_mejorado` para centrar la grilla de
+# busqueda en vez de barrer un rango fijo a ciegas.
+# =============================================================================
+_BETA_PRED_INTERCEPT = -25.047163289759965
+_BETA_PRED_COEF_LOG_SIGMA_W = -3.0474631066320534
+_BETA_PRED_COEF_LOG_PASO_MEDIO = -0.6071708626364334
+
+
+def beta_pred_formula(sigma_W, paso_medio):
+    """beta_óptimo predicho por la fórmula empírica (ver arriba). `sigma_W` y
+    `paso_medio` en las mismas unidades (Siemens) que usa el resto del
+    código de este proyecto."""
+    log_beta = (
+        _BETA_PRED_INTERCEPT
+        + _BETA_PRED_COEF_LOG_SIGMA_W * np.log(sigma_W)
+        + _BETA_PRED_COEF_LOG_PASO_MEDIO * np.log(paso_medio)
+    )
+    return float(np.exp(log_beta))
+
+
+def estimar_sigma_W_y_paso_medio(pot, dep, n_muestras=784, seed=35):
+    """Estima sigma_W (Monte Carlo, vía `G0_initialization`) y paso_medio (de
+    la curva de potenciación) para un juego de curvas pot/dep dado. Tarda
+    milisegundos (no entrena nada)."""
+    gen_state = torch.get_rng_state()
+    try:
+        torch.manual_seed(seed)
+        G = G0_initialization('random', pot, dep, n_muestras, 1)
+    finally:
+        torch.set_rng_state(gen_state)  # no perturbar el RNG global del resto de la busqueda
+    W = (G[:, 0] - G[:, 1]).cpu().numpy()
+    sigma_W = float(W.std())
+    pot_np = pot.cpu().numpy() if torch.is_tensor(pot) else np.asarray(pot)
+    paso_medio = float(np.mean(np.abs(np.diff(pot_np))))
+    return sigma_W, paso_medio
+
+
 class MemDNN(nn.Module):
     """
     Red feedforward multicapa con crossbars memristivos diferenciales.
@@ -369,9 +411,202 @@ class MemDNN(nn.Module):
 
             return best_beta, best_acc_mean
 
+    # -------------------------------------------------------------------------
+
+    def search_best_beta_mejorado(
+        self,
+        train_loaders,
+        val_loaders,
+        loss_fn,
+        a: float,  # se mantiene por compatibilidad de firma con search_best_beta;
+                   # ya no se usa para decidir si correr o no la busqueda
+        lr,
+        delta_t_forward,
+        delta_t_pulse,
+        Vr, Vs,
+        margen: float = 4.0,
+        n_puntos: int = 10,
+        k_folds_busqueda: int = 3,
+        epochs_busqueda: int = 8,
+        seed_base: int = 12345,
+        max_expansiones: int = 2,
+        verbose: bool = True,
+    ):
+        """
+        Version mejorada de `search_best_beta` (ver `mejora_search_best_beta/
+        documentacion_mejora_search_best_beta.md` para el detalle de cada
+        correccion respecto de la version original de arriba). Resumen de
+        las correcciones:
+
+          1) No hay rama muerta: la busqueda corre siempre (el original solo
+             corria si `a <= 10000`).
+          2) `epochs_busqueda` candidatos (default 8, no 1) por (beta, fold),
+             en base al costo de elegir beta con pocas epocas medido en
+             `analisis_epochs_series_minimos/`.
+          3) "Common random numbers": la semilla de torch/numpy para cada
+             fold `k` depende SOLO de `k`, no del beta, asi todos los betas
+             de la grilla arrancan con la MISMA inicializacion de G0 y el
+             MISMO orden de batches -> la diferencia de accuracy entre betas
+             refleja el efecto de beta, no el de una inicializacion afortunada.
+          4) La grilla ya no es lineal ni ciega: es log-espaciada y se centra
+             en `beta_pred`, la estimacion de la formula analitica ya
+             encontrada en este proyecto (`beta_pred_formula`, ajustada por
+             regresion log-log sobre curvas P/D reales, R²=0.938). Cubre un
+             margen multiplicativo (`margen`, default 4x) alrededor de
+             `beta_pred` y se expande automaticamente (hasta
+             `max_expansiones` veces, de forma direccional: solo agrega
+             puntos nuevos del lado del borde que se toco, con el mismo
+             paso log de la grilla original, sin re-evaluar ni descartar
+             betas ya probados) si el optimo empirico cae en el borde
+             de la grilla, señal de que la formula fallo en ese regimen.
+          5) En vez del parametro `std_range` (sin uso en el original), se
+             devuelve la "meseta" real de betas dentro de 1 error estandar
+             del mejor (regla del 1-SE): el grupo de betas estadisticamente
+             indistinguibles cerca del optimo.
+
+        Devuelve: best_beta, best_acc_mean, info
+        """
+        assert len(train_loaders) == len(val_loaders)
+        n_folds_disponibles = len(train_loaders)
+        k_folds_busqueda = min(k_folds_busqueda, n_folds_disponibles)
+
+        # --- primero estimar con la formula, despues buscar cerca de la estimacion ---
+        sigma_W, paso_medio = estimar_sigma_W_y_paso_medio(self.pot, self.dep, n_muestras=self.sizes[0])
+        beta_pred = beta_pred_formula(sigma_W, paso_medio)
+        if verbose:
+            print(f"[formula] sigma_W={sigma_W:.4e} paso_medio={paso_medio:.4e} "
+                  f"-> beta_pred={beta_pred:.1f} (centro de la grilla de busqueda)")
+
+        betas_evaluados = {}  # beta -> (acc_mean, acc_sem), cache para no re-evaluar en una expansion
+
+        def evaluar_beta(beta):
+            if beta in betas_evaluados:
+                return betas_evaluados[beta]
+            fold_accs = []
+            for k in range(k_folds_busqueda):
+                # common random numbers: la semilla depende SOLO del fold `k`
+                torch.manual_seed(seed_base + k)
+                np.random.seed(seed_base + k)
+
+                model = MemDNN(
+                    sizes=self.sizes,
+                    beta=float(beta),
+                    pot=self.pot,
+                    dep=self.dep,
+                    G0_distribution='random',
+                    fixed=self.fixed,
+                    device=self.device,
+                )
+                model.train()
+
+                for _ in range(epochs_busqueda):
+                    model.train_epoch(
+                        train_loaders[k], lr, loss_fn,
+                        delta_t_forward, delta_t_pulse, Vr, Vs,
+                    )
+
+                acc, _ = model.evaluate_model(val_loaders[k], loss_fn)
+                fold_accs.append(acc)
+
+            acc_mean = float(np.mean(fold_accs))
+            acc_sem = float(np.std(fold_accs) / np.sqrt(len(fold_accs)))
+            betas_evaluados[beta] = (acc_mean, acc_sem)
+            if verbose:
+                print(f"[beta={beta:9.2f}] acc_mean={acc_mean:.4f} +- {acc_sem:.4f} "
+                      f"(SEM, {k_folds_busqueda} folds)")
+            return acc_mean, acc_sem
+
+        # Grilla en log-espacio con paso fijo. Al expandir, se agregan puntos
+        # nuevos SOLO del lado del borde donde cayo el optimo (si el mejor
+        # esta en el extremo superior se agregan puntos mas arriba; si esta
+        # en el extremo inferior, mas abajo), con el mismo paso que la
+        # grilla original. Los puntos ya evaluados (y del lado opuesto) se
+        # mantienen tal cual: nunca se re-evaluan ni se descartan.
+        log_beta_pred = float(np.log(beta_pred))
+        paso_log = 2.0 * np.log(margen) / (n_puntos - 1)
+        rango_bajo = margen
+        rango_alto = margen
+        log_lo = log_beta_pred - np.log(rango_bajo)
+        log_hi = log_beta_pred + np.log(rango_alto)
+        log_puntos_nuevos = list(np.linspace(log_lo, log_hi, n_puntos))
+
+        expansiones = 0
+        while True:
+            for lp in log_puntos_nuevos:
+                evaluar_beta(float(np.exp(lp)))
+
+            betas_ordenados = np.array(sorted(betas_evaluados.keys()))
+            accs_ordenados = np.array([betas_evaluados[b][0] for b in betas_ordenados])
+            idx_best = int(np.argmax(accs_ordenados))
+
+            en_borde_alto = idx_best == len(betas_ordenados) - 1
+            en_borde_bajo = (not en_borde_alto) and idx_best == 0
+
+            if (en_borde_alto or en_borde_bajo) and expansiones < max_expansiones:
+                expansiones += 1
+                log_puntos_nuevos = []
+                if en_borde_alto:
+                    rango_alto *= 2
+                    nuevo_log_hi = log_beta_pred + np.log(rango_alto)
+                    lp = log_hi + paso_log
+                    while lp <= nuevo_log_hi + 1e-9:
+                        log_puntos_nuevos.append(lp)
+                        lp += paso_log
+                    log_hi = nuevo_log_hi
+                    lado = f"superior (hasta {rango_alto:.0f}x)"
+                else:
+                    rango_bajo *= 2
+                    nuevo_log_lo = log_beta_pred - np.log(rango_bajo)
+                    lp = log_lo - paso_log
+                    while lp >= nuevo_log_lo - 1e-9:
+                        log_puntos_nuevos.append(lp)
+                        lp -= paso_log
+                    log_lo = nuevo_log_lo
+                    lado = f"inferior (hasta {rango_bajo:.0f}x)"
+
+                if verbose:
+                    print(f"[aviso] el optimo cayo en el borde {'superior' if en_borde_alto else 'inferior'} "
+                          f"de la grilla centrada en la formula -> la formula parece fallar en este regimen; "
+                          f"expandiendo el lado {lado} "
+                          f"(expansion {expansiones}/{max_expansiones}), "
+                          f"{len(log_puntos_nuevos)} puntos nuevos a evaluar")
+                continue
+            break
+
+        best_beta = float(betas_ordenados[idx_best])
+        best_acc_mean = float(accs_ordenados[idx_best])
+        best_sem = betas_evaluados[best_beta][1]
+
+        # diagnostico de "meseta" (regla del 1-SE)
+        umbral_meseta = best_acc_mean - best_sem
+        meseta_1se = betas_ordenados[accs_ordenados >= umbral_meseta].tolist()
+
+        self.beta = self._expand_beta(best_beta, len(self.G_layers))
+
+        info = {
+            "beta_pred_formula": beta_pred,
+            "sigma_W": sigma_W,
+            "paso_medio": paso_medio,
+            "betas": betas_ordenados,
+            "acc_mean_por_beta": accs_ordenados,
+            "meseta_1se": meseta_1se,
+            "k_folds_busqueda": k_folds_busqueda,
+            "epochs_busqueda": epochs_busqueda,
+            "expansiones": expansiones,
+            "margen_final_bajo": rango_bajo,
+            "margen_final_alto": rango_alto,
+        }
+        if verbose:
+            print(f"[resultado] beta_pred(formula)={beta_pred:.1f} -> beta_elegido(busqueda)={best_beta:.1f} "
+                  f"(factor {best_beta/beta_pred:.2f}x sobre la prediccion)")
+            if len(meseta_1se) > 1:
+                print(f"[aviso] {len(meseta_1se)} betas quedan dentro de 1 error estandar "
+                      f"del mejor (meseta plana): {[round(b) for b in meseta_1se]}")
+
+        return best_beta, best_acc_mean, info
 
     # -------------------------------------------------------------------------
-    
+
     def _save_state(self):
         return {
             "beta": list(self.beta),

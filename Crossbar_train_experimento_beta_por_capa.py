@@ -28,6 +28,21 @@ la grilla, asi la comparacion entre betas para una serie dada sigue siendo
 justa (todos ven los mismos datos) y lo unico que varia entre series es la
 particion del dataset.
 
+Adaptado el 12/09/2026 para guardar tambien la matriz de conductancias G
+INICIAL (antes de entrenar, justo despues de `MemDNN(...)`) junto con el
+resto del historial de G: ahora `saved_epochs` incluye un 0 al principio
+(epoca 0 = estado inicial sin entrenar) y esa foto se guarda en el mismo
+archivo `G_history_..._serieNNN.npz`, en el indice 0 de cada
+`G_layer{i}_history`, un fold antes de que arranque el entrenamiento de ese
+fold.
+
+Adaptado el 12/09/2026 (2) para agregar argumentos de linea de comando
+--concavidad-pot, --concavidad-dep, --epochs, --batch-number y
+--optimize-beta (mismo patron que --pulsos-pot/--a-pot: si no se pasan, se
+usan los valores hardcodeados de la Seccion 1 tal cual). Pensado para poder
+lanzar varias corridas con distinta concavidad/epochs/batch_number sin editar
+el archivo a mano entre una corrida y la siguiente (ver prompt.txt).
+
 Adaptado el 02/09/2026 para poder correr como TAREA de un SLURM job array
 (un solo `sbatch train_job.sh` lanza N tareas independientes, una por beta
 de una lista -ver train_job.sh-). Se agregaron argumentos de linea de
@@ -115,18 +130,18 @@ np.random.seed(seed)
 # =============================================================================
 # 1) PARAMETROS DEL EXPERIMENTO (identicos en espiritu a Crossbar_train.py)
 # =============================================================================
-experimento = "beta_grid_search"
+experimento = "MLP_test"
 sistema = 'SP'
 fecha = '1_09_2026'
 
 # parametros de las curvas P/D
-a_pot = 197.99
-a_dep = 197.99
+a_pot =  8
+a_dep =  8
 G0_distrbtn = 'random'
 fixed = False
-optimize_beta = False
-pulsos_pot = 200
-pulsos_dep = 200
+optimize_beta = True
+pulsos_pot = 100
+pulsos_dep = 100
 concavidad_pot = 'pos'
 concavidad_dep = 'neg'
 Rhigh = 10000
@@ -137,27 +152,41 @@ device = torch.device("cpu")
 
 # entrenamiento
 sizes = [784,  10]
-series = 20
-epochs = 100
+series = 1
+epochs = 300
+save_G_every = 1  # Siempre se guarda ademas la primera y la ultima epoca de cada serie.
 lr = 1
 k_folds = 5
 batch_number = 32
 criterion = nn.CrossEntropyLoss()
 n_layers = len(sizes) - 1
 
+dataset_X = 'X_train_mnist.npy'
+dataset_y = 'y_train_mnist.npy'
+data_set_scaling = 1 #cociente para normalizar dataset
+
 # protocolo electrico
 # beta: escalar (mismo valor para todas las capas) o lista con un valor por
 # capa, de largo len(sizes) - 1. Solo se usa si `beta_grid` (mas abajo) queda
 # en None, o como base para la busqueda automatica si optimize_beta=True.
-beta = 260
-beta_max = 300
+#la version vieja de search_best_beta() sigue estando en el archivo de la clase
+beta = 30000
+
+# points_beta/beta_max: parametros de la version VIEJA de search_best_beta().
+# La busqueda automatica de mas abajo usa search_best_beta_mejorado(), que ya
+# no los toma (centra su propia grilla en una formula analitica, ver
+# MemCrossbarClass_beta_por_capa.py); quedan sin uso, quiza utiles si se
+# vuelve a la version vieja.
 points_beta = 2
+beta_max = 300
 delta_t_forward = 10e-9
 delta_t_pulse = 10e-9
 amplitud_imagen = 1
 Vs = 1
 Vr = -1
-
+# ruido (no implementado 29/01/2026)
+porcentaje_maximo = 0
+porcentaje_minimo = 0
 # -----------------------------------------------------------------------
 # GRID SEARCH MANUAL DE BETA
 # -----------------------------------------------------------------------
@@ -176,17 +205,7 @@ Vr = -1
 # agregar el grid search.
 beta_grid = None
 
-# ruido (no implementado 29/01/2026)
-porcentaje_maximo = 0
-porcentaje_minimo = 0
 
-# cada cuantas epocas se guarda una "foto" completa de G dentro de una serie
-# (1 = todas, como hacia el codigo original). Siempre se guarda ademas la
-# ultima epoca de cada serie.
-save_G_every = 1
-
-dataset_X = 'X_train_mnist.npy'
-dataset_y = 'y_train_mnist.npy'
 
 
 # =============================================================================
@@ -224,7 +243,58 @@ _parser.add_argument(
     "--n-betas-totales", type=int, default=None,
     help="Tamano total de la grilla (solo informativo, para el manifest de "
          "esta tarea). Pasar len(BETAS) del job array.")
+_parser.add_argument(
+    "--out-dir", type=str, default=None,
+    help="Carpeta de resultados de esta corrida (sobreescribe "
+         "f'{experimento}_{sistema}' de mas arriba). Pasar el mismo OUT_DIR "
+         "de train_job.sh.")
+_parser.add_argument(
+    "--pulsos-pot", type=int, default=None,
+    help="Cantidad de pulsos de la curva de potenciacion (sobreescribe "
+         "pulsos_pot de mas arriba).")
+_parser.add_argument(
+    "--pulsos-dep", type=int, default=None,
+    help="Cantidad de pulsos de la curva de depresion (sobreescribe "
+         "pulsos_dep de mas arriba).")
+_parser.add_argument(
+    "--a-pot", type=float, default=None,
+    help="Parametro 'a' de la curva de potenciacion (sobreescribe a_pot de "
+         "mas arriba).")
+_parser.add_argument(
+    "--a-dep", type=float, default=None,
+    help="Parametro 'a' de la curva de depresion (sobreescribe a_dep de mas "
+         "arriba).")
+_parser.add_argument(
+    "--concavidad-pot", type=str, default=None, choices=["pos", "neg"],
+    help="Concavidad de la curva de potenciacion (sobreescribe "
+         "concavidad_pot de mas arriba).")
+_parser.add_argument(
+    "--concavidad-dep", type=str, default=None, choices=["pos", "neg"],
+    help="Concavidad de la curva de depresion (sobreescribe concavidad_dep "
+         "de mas arriba).")
+_parser.add_argument(
+    "--epochs", type=int, default=None,
+    help="Cantidad de epocas por fold (sobreescribe epochs de mas arriba).")
+_parser.add_argument(
+    "--batch-number", type=int, default=None,
+    help="Cantidad de batches por epoca (sobreescribe batch_number de mas "
+         "arriba).")
+_parser.add_argument(
+    "--optimize-beta", action="store_true", default=False,
+    help="Si se pasa, fuerza optimize_beta=True (busqueda automatica de "
+         "beta antes de la grilla), sin importar el valor hardcodeado de "
+         "mas arriba. No hay equivalente para forzarlo a False por CLI: si "
+         "no se pasa este flag, se usa el valor de mas arriba tal cual.")
 cli_args, _cli_unknown = _parser.parse_known_args()
+if _cli_unknown:
+    # parse_known_args() ignora en silencio cualquier argumento que no este
+    # declarado arriba (bug ya sufrido una vez: train_job.sh le pasaba
+    # --out-dir/--pulsos-pot/... antes de que existieran aca, y se
+    # ignoraban sin aviso, corriendo siempre con los valores hardcodeados).
+    # Este print es la unica red de seguridad contra que vuelva a pasar
+    # desapercibido.
+    print(f"AVISO: argumentos de linea de comando no reconocidos, IGNORADOS: "
+          f"{_cli_unknown}")
 
 if cli_args.beta is not None:
     # Modo "tarea de job array": se corre UN SOLO beta en este proceso.
@@ -236,6 +306,29 @@ else:
     # si beta_grid quedo en None, ver mas abajo).
     beta_grid_start_idx = 0
     n_betas_totales_manifest = None  # se completa con len(beta_grid) mas abajo
+
+# Overrides de la curva P/D y de la carpeta de resultados via CLI (ver
+# argumentos --out-dir/--pulsos-pot/--pulsos-dep/--a-pot/--a-dep de arriba).
+# Tienen que aplicarse ANTES de generar_curvas_pot_dep() y de folder_resultados
+# (seccion 3 y 4, mas abajo).
+if cli_args.pulsos_pot is not None:
+    pulsos_pot = cli_args.pulsos_pot
+if cli_args.pulsos_dep is not None:
+    pulsos_dep = cli_args.pulsos_dep
+if cli_args.a_pot is not None:
+    a_pot = cli_args.a_pot
+if cli_args.a_dep is not None:
+    a_dep = cli_args.a_dep
+if cli_args.concavidad_pot is not None:
+    concavidad_pot = cli_args.concavidad_pot
+if cli_args.concavidad_dep is not None:
+    concavidad_dep = cli_args.concavidad_dep
+if cli_args.epochs is not None:
+    epochs = cli_args.epochs
+if cli_args.batch_number is not None:
+    batch_number = cli_args.batch_number
+if cli_args.optimize_beta:
+    optimize_beta = True
 
 
 # =============================================================================
@@ -273,6 +366,19 @@ def _beta_jsonable(beta_value):
     return float(beta_value)
 
 
+def _search_beta_info_jsonable(info):
+    """Convierte el dict `info` devuelto por `search_best_beta_mejorado`
+    (puede traer np.ndarray, p.ej. 'betas'/'acc_mean_por_beta') a algo
+    serializable por json.dump. `info` puede ser None (optimize_beta=False,
+    no se corrio ninguna busqueda)."""
+    if info is None:
+        return None
+    return {
+        k: (v.tolist() if isinstance(v, np.ndarray) else v)
+        for k, v in info.items()
+    }
+
+
 _validar_beta(beta, n_layers)
 if beta_grid is not None:
     for b in beta_grid:
@@ -281,7 +387,7 @@ if beta_grid is not None:
 # =============================================================================
 # 3) CARPETA DEL EXPERIMENTO (compartida por todas las corridas de la grilla)
 # =============================================================================
-folder_resultados = (f"{experimento}_{sistema}")
+folder_resultados = cli_args.out_dir if cli_args.out_dir is not None else f"{experimento}_{sistema}"
 os.makedirs(folder_resultados, exist_ok=True)
 
 run_timestamp = time.strftime("%Y%m%d_%H%M%S")
@@ -314,7 +420,7 @@ dep = torch.tensor(dep, dtype=torch.float32)
 # =============================================================================
 # 5) DATASET Y FOLDS (compartidos por todas las corridas de la grilla)
 # =============================================================================
-X_train = np.load(dataset_X) * amplitud_imagen
+X_train = (np.load(dataset_X)/data_set_scaling ) * amplitud_imagen
 y_train = np.load(dataset_y)
 X_train = torch.from_numpy(X_train).float()
 y_train = torch.from_numpy(y_train).long()
@@ -347,10 +453,22 @@ if optimize_beta:
     # esta busqueda automatica es solo una estimacion previa, no forma parte
     # del grid search en si.
     train_loaders_search, val_loaders_search = folds_por_serie[0]
-    best_beta_search, best_acc_search = model.search_best_beta(
-        train_loaders_search, val_loaders_search, criterion, a_pot, lr,
-        delta_t_forward, delta_t_pulse, Vr, Vs,
-        beta_max=beta_max, points=points_beta
+    best_beta_search, best_acc_search, best_beta_info_search = model.search_best_beta_mejorado(
+        train_loaders_search, val_loaders_search, 
+        criterion, 
+        a_pot, 
+        lr,
+        delta_t_forward, 
+        delta_t_pulse, 
+        Vr, 
+        Vs,
+        margen = 4.0,
+        n_puntos = 10,
+        k_folds_busqueda = 3,
+        epochs_busqueda = 8,
+        seed_base = 12345,
+        max_expansiones  = 2,
+        verbose = True,
     )
 
     print("\n===================================")
@@ -358,7 +476,7 @@ if optimize_beta:
     print(f"Accuracy promedio CV                        = {best_acc_search}")
     print("===================================\n")
 else:
-    best_beta_search, best_acc_search = beta, 0
+    best_beta_search, best_acc_search, best_beta_info_search = beta, 0, None
 
 # Si no se paso una grilla explicita, se corre una unica corrida (mismo
 # comportamiento que antes de agregar el grid search).
@@ -434,8 +552,10 @@ def save_experiment_results(path_npz, series, acc_result, train_loss_result, val
       acc_result, train_loss_result, val_loss_result,
       energy_forward_result, energy_pulse_result : (series_completadas, k_folds, epochs)
       saved_epochs                                : (len(saved_epochs),)
-                                                       numero de epoca (1-indexado)
-                                                       de cada "foto" de G guardada
+                                                       numero de epoca de cada "foto" de
+                                                       G guardada (1-indexado); un 0 al
+                                                       principio indica el estado INICIAL
+                                                       de G, antes de entrenar
     """
     save_dict = dict(
         acc_result=acc_result[:series_completadas],
@@ -458,10 +578,13 @@ def save_G_history_serie(folder_resultados, experiment_id, serie, saved_epochs,
     """
     Guarda el historial de G de UNA SOLA serie (de UNA corrida/beta) en su
     propio archivo .npz comprimido: (k_folds, len(saved_epochs), D_in,
-    2*D_out) por capa. Se escribe una unica vez, apenas esa serie termina, y
-    nunca se vuelve a reescribir -a diferencia del checkpoint de metricas,
-    que se reemplaza en cada serie-, por eso no hace falta escritura atomica
-    con reintentos (pero se usa igual, es barato y no duele).
+    2*D_out) por capa. El indice 0 a lo largo de `saved_epochs` es la matriz
+    de G INICIAL (antes de entrenar, `saved_epochs[0] == 0`); los indices
+    siguientes son las fotos tomadas durante el entrenamiento, igual que
+    antes. Se escribe una unica vez, apenas esa serie termina, y nunca se
+    vuelve a reescribir -a diferencia del checkpoint de metricas, que se
+    reemplaza en cada serie-, por eso no hace falta escritura atomica con
+    reintentos (pero se usa igual, es barato y no duele).
     """
     filename = f"G_history_{experiment_id}_serie{serie:03d}.npz"
     path = os.path.join(folder_resultados, filename)
@@ -538,10 +661,11 @@ config_fija_grilla = dict(
            "porcentaje_minimo": porcentaje_minimo},
     guardado={"save_G_every": save_G_every},
     busqueda_beta_automatica={"optimize_beta": optimize_beta,
+                              "metodo": "search_best_beta_mejorado",
                               "beta_inicial": _beta_jsonable(beta),
-                              "beta_max": beta_max, "points_beta": points_beta,
                               "best_beta_search": _beta_jsonable(best_beta_search),
-                              "best_acc_search": best_acc_search},
+                              "best_acc_search": best_acc_search,
+                              "info": _search_beta_info_jsonable(best_beta_info_search)},
     software={"python": platform.python_version(), "torch": torch.__version__,
               "numpy": np.__version__, "platform": platform.platform()},
 )
@@ -551,9 +675,10 @@ config_fija_grilla = dict(
 # MemDNN.G0_initialization arma G con forma (D_in, 2*D_out).
 G_shapes = [(sizes[i], 2 * sizes[i + 1]) for i in range(len(sizes) - 1)]
 
-# indices de epoca (1-indexados) que se van a "fotografiar" por completo
-saved_epochs = [e for e in range(1, epochs + 1)
-                if (e % save_G_every == 0) or (e == epochs)]
+# indices de epoca que se van a "fotografiar" por completo: 0 es el estado
+# INICIAL de G (antes de entrenar); el resto son 1-indexados, como antes.
+saved_epochs = [0] + [e for e in range(1, epochs + 1)
+                      if (e % save_G_every == 0) or (e == epochs)]
 n_saved = len(saved_epochs)
 
 # =============================================================================
@@ -662,7 +787,14 @@ for beta_idx, beta_value in enumerate(beta_grid, start=beta_grid_start_idx):
             train_loader = train_loaders[fold]
             val_loader = val_loaders[fold]
 
-            save_idx = 0
+            # "Foto" de G en epoca 0: el estado INICIAL de la conductancia,
+            # antes de entrenar nada en este fold, se guarda junto con el
+            # resto del historial (mismo arreglo/archivo G_history), en el
+            # indice 0 (saved_epochs[0] == 0).
+            for i, G in enumerate(snapshot_G(model)):
+                G_history_this_serie[i][fold, 0] = G
+            save_idx = 1
+
             for e in range(1, epochs + 1):
                 time_stamp = time.time()
                 total_loss, total_energy_forward, total_energy_pulse = model.train_epoch(
