@@ -1,0 +1,90 @@
+{
+  "seed": 35,
+  "sistema": "SP",
+  "fecha": "1_09_2026",
+  "dataset": {
+    "X": "X_train_mnist.npy",
+    "y": "y_train_mnist.npy",
+    "amplitud_imagen": 1
+  },
+  "arquitectura": {
+    "sizes": [
+      784,
+      10
+    ],
+    "fixed": false,
+    "G0_distribution": "random",
+    "device": "cpu"
+  },
+  "curva_pd": {
+    "pulsos_pot": 50,
+    "pulsos_dep": 50,
+    "a_pot": 5.85,
+    "a_dep": 5.85,
+    "concavidad_pot": "pos",
+    "concavidad_dep": "neg",
+    "Rlow": 1000,
+    "Rhigh": 10000,
+    "Gmin": 0.0001,
+    "Gmax": 0.001,
+    "ratio": 10,
+    "inl_pot": 0.1999355340856478,
+    "inl_dep": 0.1999339300139406
+  },
+  "entrenamiento": {
+    "series": 1,
+    "epochs": 20,
+    "k_folds": 5,
+    "batch_number": 32,
+    "lr": 1,
+    "criterion": "CrossEntropyLoss"
+  },
+  "folds": {
+    "modo": "particion_distinta_por_serie_reusada_entre_betas",
+    "fold_seeds_por_serie": [
+      35
+    ]
+  },
+  "protocolo_electrico": {
+    "delta_t_forward": 1e-08,
+    "delta_t_pulse": 1e-08,
+    "Vr": -1,
+    "Vs": 1
+  },
+  "ruido": {
+    "porcentaje_maximo": 0,
+    "porcentaje_minimo": 0
+  },
+  "guardado": {
+    "save_G_every": 1,
+    "archivo_resultados": "resultados_SP_1_09_2026_20260912_160047_beta00_b5000.npz",
+    "archivo_configuracion": "config_SP_1_09_2026_20260912_160047_beta00_b5000.json"
+  },
+  "busqueda_beta_automatica": {
+    "optimize_beta": false,
+    "metodo": "search_best_beta_mejorado",
+    "beta_inicial": 5000.0,
+    "best_beta_search": 5000.0,
+    "best_acc_search": 0,
+    "info": null
+  },
+  "software": {
+    "python": "3.12.7",
+    "torch": "2.5.1",
+    "numpy": "1.26.4",
+    "platform": "Windows-10-10.0.19045-SP0"
+  },
+  "experiment_id": "SP_1_09_2026_20260912_160047_beta00_b5000",
+  "timestamp_inicio": "20260912_160047",
+  "beta": {
+    "valor": 5000.0,
+    "indice_grilla": 0,
+    "tag": "b5000"
+  },
+  "progreso": {
+    "series_completadas": 0,
+    "series_totales": 1,
+    "estado": "en_curso",
+    "ultima_actualizacion": "20260912_160047"
+  }
+}

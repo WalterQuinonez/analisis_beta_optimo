@@ -1,0 +1,4 @@
+analisa el código Crossbar_train_experimento_beta_por_capas.py y MemCrossbarClass_beta_por_capa.py (mira los papers en la carpeta papers para mas contexto) y 
+analiza el método para estimar el beta optimo de las simulaciones search_best_beta(). Si hay algún error metodologico en la busqueda mejoralo para que sea mas preciso. 
+Para esto usa cualquier metodo que te paresca adecuado, pero que no sea costoso computacionalmente. 
+

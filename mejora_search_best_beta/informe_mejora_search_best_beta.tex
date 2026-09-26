@@ -1,0 +1,138 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-noshorthands]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue]{hyperref}
+\usepackage{caption}
+\usepackage{parskip}
+\usepackage[expansion=false]{microtype}
+\sloppy
+
+\title{\textbf{Corrigiendo \texttt{search\_best\_beta()}}\\
+\large Errores metodológicos encontrados y una búsqueda más precisa, sin encarecerla}
+\author{Walter Quiñonez}
+\date{Reporte generado con Claude Code \textperiodcentered\ 9 de septiembre de 2026}
+
+\begin{document}
+\maketitle
+
+\begin{quote}\itshape
+Se analizó \texttt{MemDNN.search\_best\_beta()} (\texttt{MemCrossbarClass\_beta\_por\_capa.py},
+líneas 268-370), se encontraron cinco errores/carencias metodológicas, y se implementó una
+versión corregida como subclase (\texttt{MemDNNMejorado}) que no modifica ningún archivo
+original. Validada empíricamente contra el ground truth real: reduce el regret en el peor
+caso de 20.3pp a 0.45pp, sin encarecer significativamente el cómputo.
+\end{quote}
+
+\tableofcontents
+
+\section{Errores encontrados en el método original}
+
+\begin{enumerate}
+\item \textbf{Bug}: todo el cuerpo está adentro de \texttt{if a <= 10000:} sin \texttt{else}
+-- para \texttt{a\_pot > 10000} (curva P/D válida, más lineal) la función no hace nada y
+devuelve \texttt{None} en silencio.
+\item \textbf{1 sola época} de entrenamiento por candidato de beta -- el estudio de
+\texttt{analisis\_epochs\_series\_minimos/} (ground truth de 100 épocas) midió hasta 1.48pp
+de regret con 1 época, y $<$1pp con 8.
+\item \textbf{Sin control de aleatoriedad entre betas} (el más serio): cada candidato usa una
+inicialización de conductancias y un orden de batches completamente independientes de los
+demás, contaminando la comparación con ruido que no tiene que ver con beta.
+\item \textbf{Grilla mal elegida y ciega}: la llamada real usa \texttt{beta\_max=300, points=2}
+-- literalmente prueba solo $\beta\in\{1,300\}$ -- y el rango se queda corto (el ground truth
+encuentra óptimos de hasta 750).
+\item \textbf{Código muerto}: el parámetro \texttt{std\_range} nunca se usa.
+\end{enumerate}
+
+\section{La corrección clave: centrar la búsqueda en la fórmula analítica ya encontrada}
+
+En \texttt{formula\_beta\_optimo\_propuesta/} ya se había ajustado (18 curvas, $R^2=0.938$):
+\[
+\beta_{\text{óptimo}} \approx 1.34\times10^{-11}\cdot\sigma_W^{-3.05}\cdot\text{paso\_medio}^{-0.61}
+\]
+Se la validó de nuevo contra las 30 combinaciones INL$\times$pulsos hoy disponibles (12 más
+que las usadas para ajustarla):
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{@{}lr@{}}
+\toprule
+Cociente $\beta_{\text{predicho}}/\beta_{\text{óptimo real}}$ & valor \\
+\midrule
+mediana & 0.948 \\
+mínimo & 0.720 \\
+máximo & 1.261 \\
+\% de los 30 casos dentro de un factor 2$\times$ & \textbf{100\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Con una predicción tan buena, la búsqueda ya no necesita cubrir $[1,2000]$ a ciegas: se centra
+en \texttt{beta\_pred} (calculado en milisegundos) con un margen $4\times$ (con colchón sobre
+el error máximo observado de 1.26$\times$), y expande automáticamente si el óptimo cae en el
+borde de esa grilla angosta (red de seguridad ante regímenes donde la fórmula falle).
+
+\section{Validación empírica: original vs.\ mejorado}
+
+2 combos representativos (extremos de no linealidad), 5 repeticiones con semillas nuevas cada
+uno, comparando contra el ground truth completo (100 épocas, 20 series, 5 folds):
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Método & regret medio & regret mediana & \textbf{regret peor caso} & tiempo prom.\ \\
+\midrule
+(a) original (como se usa hoy) & 10.19 pp & 10.19 pp & \textbf{20.30 pp} & 11.8 s \\
+(b) original (defaults de fábrica) & 0.24 pp & 0.03 pp & 2.16 pp & 118.2 s \\
+\textbf{(c) mejorado} & \textbf{0.08 pp} & \textbf{0.04 pp} & \textbf{0.45 pp} & 218.2 s \\
+\bottomrule
+\end{tabular}
+\caption{10 corridas por método (2 combos $\times$ 5 repeticiones), semillas nuevas no
+reutilizadas del grid search original.}
+\end{table}
+
+El método que corre hoy en producción (a) elige siempre $\beta=1$ en el combo más no lineal
+(INL=$2\times10^{-1}$, óptimo real=100), perdiendo sistemáticamente $\sim$20 puntos
+porcentuales de accuracy -- con solo 2 puntos de grilla, si ninguno cae cerca del óptimo no
+hay forma de recuperarse. El mejorado nunca superó 0.45pp de regret en las 10 corridas, a un
+costo de $\sim$3.6 minutos por búsqueda -- despreciable frente a un entrenamiento completo real
+(horas).
+
+\section{Cómo usarlo}
+
+\begin{verbatim}
+from search_best_beta_mejorado import MemDNNMejorado
+
+model = MemDNNMejorado(sizes=sizes, beta=beta_inicial, pot=pot, dep=dep,
+                        G0_distribution=G0_distrbtn, fixed=fixed, device=device)
+best_beta, best_acc, info = model.search_best_beta(
+    train_loaders, val_loaders, criterion, a_pot, lr,
+    delta_t_forward, delta_t_pulse, Vr, Vs)
+\end{verbatim}
+
+Reemplazo ``drop-in'': no se modificó \texttt{MemCrossbarClass\_beta\_por\_capa.py} ni
+\texttt{Crossbar\_train\_experimento\_beta\_por\_capa.py}; \texttt{MemDNNMejorado} hereda todo
+de \texttt{MemDNN} y solo sobreescribe \texttt{search\_best\_beta}.
+
+\section{Limitaciones}
+
+\begin{itemize}
+\item La fórmula que centra la grilla fue validada solo para \texttt{sizes=[784,10]} y ratio
+Gmax/Gmin=10; en otro régimen, la red de seguridad (expansión automática) es la que sostiene
+la precisión.
+\item Ni la fórmula ni la búsqueda optimizan betas distintos por capa (mismo alcance que el
+original).
+\item Validación empírica con 2 combos y 5 repeticiones (no los 30 combos completos), por
+costo de tiempo.
+\end{itemize}
+
+Ver \texttt{documentacion\_mejora\_search\_best\_beta.md} en esta misma carpeta para el
+desarrollo completo, código y tablas verificables por un humano.
+
+\end{document}

@@ -1,0 +1,139 @@
+{
+  "seed": 35,
+  "sistema": "SP",
+  "fecha": "1_09_2026",
+  "dataset": {
+    "X": "X_train_mnist.npy",
+    "y": "y_train_mnist.npy",
+    "amplitud_imagen": 1
+  },
+  "arquitectura": {
+    "sizes": [
+      784,
+      10
+    ],
+    "fixed": false,
+    "G0_distribution": "LRS",
+    "device": "cpu"
+  },
+  "curva_pd": {
+    "pulsos_pot": 100,
+    "pulsos_dep": 100,
+    "a_pot": 3173.88,
+    "a_dep": 3173.88,
+    "concavidad_pot": "pos",
+    "concavidad_dep": "neg",
+    "Rlow": 1000,
+    "Rhigh": 10000,
+    "Gmin": 0.0001,
+    "Gmax": 0.001,
+    "ratio": 10,
+    "inl_pot": 1.0019671476955673e-05,
+    "inl_dep": 1.0000008544230804e-05
+  },
+  "entrenamiento": {
+    "series": 20,
+    "epochs": 100,
+    "k_folds": 5,
+    "batch_number": 32,
+    "lr": 1,
+    "criterion": "CrossEntropyLoss"
+  },
+  "folds": {
+    "modo": "particion_distinta_por_serie_reusada_entre_betas",
+    "fold_seeds_por_serie": [
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54
+    ]
+  },
+  "protocolo_electrico": {
+    "delta_t_forward": 1e-08,
+    "delta_t_pulse": 1e-08,
+    "Vr": -1,
+    "Vs": 1
+  },
+  "ruido": {
+    "porcentaje_maximo": 0,
+    "porcentaje_minimo": 0
+  },
+  "guardado": {
+    "save_G_every": 10,
+    "archivo_resultados": "resultados_beta_grid_search_SP_INL_1e-5_p_100_job31226069_beta07_b350.npz",
+    "archivo_configuracion": "config_beta_grid_search_SP_INL_1e-5_p_100_job31226069_beta07_b350.json"
+  },
+  "busqueda_beta_automatica": {
+    "optimize_beta": false,
+    "beta_inicial": 800.0,
+    "beta_max": 300,
+    "points_beta": 2,
+    "best_beta_search": 800.0,
+    "best_acc_search": 0
+  },
+  "software": {
+    "python": "3.9.6",
+    "torch": "2.8.0+cu128",
+    "numpy": "2.0.2",
+    "platform": "Linux-4.18.0-553.150.1.el8_10.x86_64-x86_64-with-glibc2.28"
+  },
+  "experiment_id": "beta_grid_search_SP_INL_1e-5_p_100_job31226069_beta07_b350",
+  "timestamp_inicio": "20260906_064719",
+  "beta": {
+    "valor": 350.0,
+    "indice_grilla": 7,
+    "tag": "b350"
+  },
+  "progreso": {
+    "series_completadas": 20,
+    "series_totales": 20,
+    "estado": "completo",
+    "ultima_actualizacion": "20260906_111522",
+    "tiempo_transcurrido_s": 16081.8,
+    "acc_final_ultima_serie_por_fold": [
+      0.9035833477973938,
+      0.9100833535194397,
+      0.9156666398048401,
+      0.9144999980926514,
+      0.9100000262260437
+    ],
+    "archivos_G_history": [
+      "G_history_beta_grid_search_SP_INL_1e-5_p_100_job31226069_beta07_b350_serie000.npz",
+      "G_history_beta_grid_search_SP_INL_1e-5_p_100_job31226069_beta07_b350_serie001.npz",
+      "G_history_beta_grid_search_SP_INL_1e-5_p_100_job31226069_beta07_b350_serie002.npz",
+      "G_history_beta_grid_search_SP_INL_1e-5_p_100_job31226069_beta07_b350_serie003.npz",
+      "G_history_beta_grid_search_SP_INL_1e-5_p_100_job31226069_beta07_b350_serie004.npz",
+      "G_history_beta_grid_search_SP_INL_1e-5_p_100_job31226069_beta07_b350_serie005.npz",
+      "G_history_beta_grid_search_SP_INL_1e-5_p_100_job31226069_beta07_b350_serie006.npz",
+      "G_history_beta_grid_search_SP_INL_1e-5_p_100_job31226069_beta07_b350_serie007.npz",
+      "G_history_beta_grid_search_SP_INL_1e-5_p_100_job31226069_beta07_b350_serie008.npz",
+      "G_history_beta_grid_search_SP_INL_1e-5_p_100_job31226069_beta07_b350_serie009.npz",
+      "G_history_beta_grid_search_SP_INL_1e-5_p_100_job31226069_beta07_b350_serie010.npz",
+      "G_history_beta_grid_search_SP_INL_1e-5_p_100_job31226069_beta07_b350_serie011.npz",
+      "G_history_beta_grid_search_SP_INL_1e-5_p_100_job31226069_beta07_b350_serie012.npz",
+      "G_history_beta_grid_search_SP_INL_1e-5_p_100_job31226069_beta07_b350_serie013.npz",
+      "G_history_beta_grid_search_SP_INL_1e-5_p_100_job31226069_beta07_b350_serie014.npz",
+      "G_history_beta_grid_search_SP_INL_1e-5_p_100_job31226069_beta07_b350_serie015.npz",
+      "G_history_beta_grid_search_SP_INL_1e-5_p_100_job31226069_beta07_b350_serie016.npz",
+      "G_history_beta_grid_search_SP_INL_1e-5_p_100_job31226069_beta07_b350_serie017.npz",
+      "G_history_beta_grid_search_SP_INL_1e-5_p_100_job31226069_beta07_b350_serie018.npz",
+      "G_history_beta_grid_search_SP_INL_1e-5_p_100_job31226069_beta07_b350_serie019.npz"
+    ]
+  }
+}

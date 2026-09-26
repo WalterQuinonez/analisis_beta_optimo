@@ -1,0 +1,137 @@
+{
+  "seed": 35,
+  "sistema": "SP",
+  "fecha": "1_09_2026",
+  "dataset": {
+    "X": "X_train_mnist.npy",
+    "y": "y_train_mnist.npy",
+    "amplitud_imagen": 1
+  },
+  "arquitectura": {
+    "sizes": [
+      784,
+      10
+    ],
+    "fixed": false,
+    "G0_distribution": "random",
+    "device": "cpu"
+  },
+  "curva_pd": {
+    "pulsos_pot": 50,
+    "pulsos_dep": 50,
+    "a_pot": 5.85,
+    "a_dep": 5.85,
+    "concavidad_pot": "pos",
+    "concavidad_dep": "neg",
+    "Rlow": 1000,
+    "Rhigh": 10000,
+    "Gmin": 0.0001,
+    "Gmax": 0.001,
+    "ratio": 10,
+    "inl_pot": 0.1999355340856478,
+    "inl_dep": 0.1999339300139406
+  },
+  "entrenamiento": {
+    "series": 1,
+    "epochs": 20,
+    "k_folds": 5,
+    "batch_number": 1,
+    "lr": 1,
+    "criterion": "CrossEntropyLoss"
+  },
+  "folds": {
+    "modo": "particion_distinta_por_serie_reusada_entre_betas",
+    "fold_seeds_por_serie": [
+      35
+    ]
+  },
+  "protocolo_electrico": {
+    "delta_t_forward": 1e-08,
+    "delta_t_pulse": 1e-08,
+    "Vr": -1,
+    "Vs": 1
+  },
+  "ruido": {
+    "porcentaje_maximo": 0,
+    "porcentaje_minimo": 0
+  },
+  "guardado": {
+    "save_G_every": 1,
+    "archivo_resultados": "resultados_SP_1_09_2026_20260912_163532_beta00_b54p69.npz",
+    "archivo_configuracion": "config_SP_1_09_2026_20260912_163532_beta00_b54p69.json"
+  },
+  "busqueda_beta_automatica": {
+    "optimize_beta": true,
+    "metodo": "search_best_beta_mejorado",
+    "beta_inicial": 30000.0,
+    "best_beta_search": 54.68700374506722,
+    "best_acc_search": 0.8082777777777778,
+    "info": {
+      "beta_pred_formula": 86.8102072739086,
+      "sigma_W": 0.0005469959578476846,
+      "paso_medio": 1.836668343457859e-05,
+      "betas": [
+        21.702551818477147,
+        29.532615492849942,
+        40.187687841665074,
+        54.68700374506722,
+        74.41752783578617,
+        101.26662771663626,
+        137.80261434818001,
+        187.52041960288946,
+        255.1759118241152,
+        347.24082909563447
+      ],
+      "acc_mean_por_beta": [
+        0.7602500000000001,
+        0.7789722222222223,
+        0.7933611111111111,
+        0.8082777777777778,
+        0.8061111111111111,
+        0.7871388888888888,
+        0.7501944444444445,
+        0.6075,
+        0.519361111111111,
+        0.3850833333333333
+      ],
+      "meseta_1se": [
+        54.68700374506722
+      ],
+      "k_folds_busqueda": 3,
+      "epochs_busqueda": 8,
+      "expansiones": 0,
+      "margen_final_bajo": 4.0,
+      "margen_final_alto": 4.0
+    }
+  },
+  "software": {
+    "python": "3.12.7",
+    "torch": "2.5.1",
+    "numpy": "1.26.4",
+    "platform": "Windows-10-10.0.19045-SP0"
+  },
+  "experiment_id": "SP_1_09_2026_20260912_163532_beta00_b54p69",
+  "timestamp_inicio": "20260912_163532",
+  "beta": {
+    "valor": 54.68700374506722,
+    "indice_grilla": 0,
+    "tag": "b54p69"
+  },
+  "progreso": {
+    "series_completadas": 1,
+    "series_totales": 1,
+    "estado": "completo",
+    "ultima_actualizacion": "20260912_164157",
+    "tiempo_transcurrido_s": 126.3,
+    "acc_final_ultima_serie_por_fold": [
+      0.8316666483879089,
+      0.8243333101272583,
+      0.831416666507721,
+      0.8254166841506958,
+      0.843916654586792
+    ],
+    "archivos_G_history": [
+      "G_history_SP_1_09_2026_20260912_163532_beta00_b54p69_serie000.npz"
+    ]
+  }
+}

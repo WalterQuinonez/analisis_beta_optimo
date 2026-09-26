@@ -1,0 +1,18 @@
+\begin{table}[htbp]
+\centering
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+Combo & $\beta$ elegido & $\beta$ óptimo & acc.\ (gr.\ truth, & acc.\ óptima & regret \\
+ & (protoc.\ reducido) & (ground truth) & $\hat\beta$, ep.\ 100) & (ground truth) & real \\
+\midrule
+INL\_2e-1\_p\_50 & 150 & 100 & 0.8434 & 0.8479 & \textbf{0.445 pp} \\
+INL\_1e-2\_p\_100 & 300 & 350 & 0.9084 & 0.9091 & \textbf{0.071 pp} \\
+\bottomrule
+\end{tabular}
+\caption{Resultado de la corroboración: beta elegido por el protocolo reducido más agresivo
+(\texttt{series=8, k\_folds=3, epochs=8}, semillas de fold nuevas) evaluado contra el ground
+truth completo (20 series$\times$5 folds$\times$época 100). Ambos casos caen muy por debajo de
+la tolerancia de 1~pp fijada en las Secciones 2-3, con datos genuinamente nuevos (no reciclados
+de las 20 series ya usadas en el grid search original). Cada corrida tardó 55-57 minutos en CPU
+local.}
+\end{table}

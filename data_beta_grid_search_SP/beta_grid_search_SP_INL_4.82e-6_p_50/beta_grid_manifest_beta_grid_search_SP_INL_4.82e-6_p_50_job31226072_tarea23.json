@@ -1,0 +1,26 @@
+{
+  "experiment_id_base": "beta_grid_search_SP_INL_4.82e-6_p_50_job31226072",
+  "timestamp_inicio": "20260906_065118",
+  "seed": 35,
+  "n_betas_totales": 40,
+  "corridas": [
+    {
+      "indice": 23,
+      "beta": 1150.0,
+      "beta_tag": "b1150",
+      "estado": "completo",
+      "experiment_id": "beta_grid_search_SP_INL_4.82e-6_p_50_job31226072_beta23_b1150",
+      "archivo_resultados": "resultados_beta_grid_search_SP_INL_4.82e-6_p_50_job31226072_beta23_b1150.npz",
+      "archivo_configuracion": "config_beta_grid_search_SP_INL_4.82e-6_p_50_job31226072_beta23_b1150.json",
+      "acc_final_ultima_serie_por_fold": [
+        0.6825000047683716,
+        0.7735833525657654,
+        0.6610833406448364,
+        0.7015833258628845,
+        0.6834166646003723
+      ],
+      "tiempo_transcurrido_s": 16690.8
+    }
+  ],
+  "ultima_actualizacion": "20260906_112930"
+}

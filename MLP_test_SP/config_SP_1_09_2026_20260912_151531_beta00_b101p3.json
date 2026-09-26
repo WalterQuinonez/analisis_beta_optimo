@@ -1,0 +1,124 @@
+{
+  "seed": 35,
+  "sistema": "SP",
+  "fecha": "1_09_2026",
+  "dataset": {
+    "X": "X_train_mnist.npy",
+    "y": "y_train_mnist.npy",
+    "amplitud_imagen": 1
+  },
+  "arquitectura": {
+    "sizes": [
+      784,
+      10
+    ],
+    "fixed": false,
+    "G0_distribution": "random",
+    "device": "cpu"
+  },
+  "curva_pd": {
+    "pulsos_pot": 50,
+    "pulsos_dep": 50,
+    "a_pot": 5.85,
+    "a_dep": 5.85,
+    "concavidad_pot": "pos",
+    "concavidad_dep": "neg",
+    "Rlow": 1000,
+    "Rhigh": 10000,
+    "Gmin": 0.0001,
+    "Gmax": 0.001,
+    "ratio": 10,
+    "inl_pot": 0.1999355340856478,
+    "inl_dep": 0.1999339300139406
+  },
+  "entrenamiento": {
+    "series": 1,
+    "epochs": 20,
+    "k_folds": 5,
+    "batch_number": 32,
+    "lr": 1,
+    "criterion": "CrossEntropyLoss"
+  },
+  "folds": {
+    "modo": "particion_distinta_por_serie_reusada_entre_betas",
+    "fold_seeds_por_serie": [
+      35
+    ]
+  },
+  "protocolo_electrico": {
+    "delta_t_forward": 1e-08,
+    "delta_t_pulse": 1e-08,
+    "Vr": -1,
+    "Vs": 1
+  },
+  "ruido": {
+    "porcentaje_maximo": 0,
+    "porcentaje_minimo": 0
+  },
+  "guardado": {
+    "save_G_every": 1,
+    "archivo_resultados": "resultados_SP_1_09_2026_20260912_151531_beta00_b101p3.npz",
+    "archivo_configuracion": "config_SP_1_09_2026_20260912_151531_beta00_b101p3.json"
+  },
+  "busqueda_beta_automatica": {
+    "optimize_beta": true,
+    "metodo": "search_best_beta_mejorado",
+    "beta_inicial": 54.687003745067244,
+    "best_beta_search": 101.26662771663621,
+    "best_acc_search": 0.8538055555555556,
+    "info": {
+      "beta_pred_formula": 86.8102072739086,
+      "sigma_W": 0.0005469959578476846,
+      "paso_medio": 1.836668343457859e-05,
+      "betas": [
+        21.70255181847715,
+        29.532615492849953,
+        40.18768784166509,
+        54.687003745067244,
+        74.4175278357862,
+        101.26662771663621,
+        137.80261434817993,
+        187.52041960288938,
+        255.17591182411505,
+        347.2408290956344
+      ],
+      "acc_mean_por_beta": [
+        0.7897500000000001,
+        0.8045277777777778,
+        0.8182777777777778,
+        0.8316666666666667,
+        0.8436666666666666,
+        0.8538055555555556,
+        0.8314166666666667,
+        0.8119166666666667,
+        0.5602222222222223,
+        0.3530277777777777
+      ],
+      "meseta_1se": [
+        101.26662771663621
+      ],
+      "k_folds_busqueda": 3,
+      "epochs_busqueda": 8,
+      "expansiones": 0
+    }
+  },
+  "software": {
+    "python": "3.12.7",
+    "torch": "2.5.1",
+    "numpy": "1.26.4",
+    "platform": "Windows-10-10.0.19045-SP0"
+  },
+  "experiment_id": "SP_1_09_2026_20260912_151531_beta00_b101p3",
+  "timestamp_inicio": "20260912_151531",
+  "beta": {
+    "valor": 101.26662771663621,
+    "indice_grilla": 0,
+    "tag": "b101p3"
+  },
+  "progreso": {
+    "series_completadas": 0,
+    "series_totales": 1,
+    "estado": "en_curso",
+    "ultima_actualizacion": "20260912_151940"
+  }
+}

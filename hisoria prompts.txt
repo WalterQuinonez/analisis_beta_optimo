@@ -1,0 +1,15 @@
+Lee los papers en la carpeta "papers" y familiarizate con el modelado de crossbars arrays basados en memritores para emular redes neuronales. En particular presta
+atención al modelado y los resultados del paper "APLED_2026". En este no se aborda la elección del parámetro beta que escalea las corrientes de salidas. Este 
+parámetro se busca a fuerza bruta haciendo varias instancias de preentrenamiento y eligiendo el mejor resultado. Esto es lento y costoso computacionalmente. 
+
+Usa la data provista en "beta_grid_search_SP" para validar la formula mencionada en el paper de prezioso para estimar el beta optimo y genera un reporte de los resultados. 
+Deja registro de los códigos que usados. No corras ninguna simulación extra, solo usa la data provista.   
+
+
+#############################################################################################################
+
+Trata de encontrar una posible ecuación para el beta optimo en base a la data y los codigos que existen en la carpeta. Usa las ideas del código analisis_beta_optimo.py para 
+estudiar las distribuciones de corriente y pesos. 
+No modifiques ningun archivo con código existente, si vas a modificar algún código proporcionado, crea una copia. 
+
+Al finalizar genera un reporte en  pdf

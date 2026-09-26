@@ -1,0 +1,36 @@
+# --- Datos crudos pesados (MNIST/Fashion-MNIST) ---
+# Se regeneran con el snippet de README.md; no tiene sentido versionar ~1 GB
+# de arrays que son 100% reproducibles desde un dataset publico.
+/X_train_mnist.npy
+/X_train_mnist_fashion.npy
+/y_train_mnist.npy
+/y_train_mnist_fashion.npy
+/Fuerza_bruta/X_train_mnist.npy
+/Fuerza_bruta/X_train_mnist_fashion.npy
+/Fuerza_bruta/y_train_mnist.npy
+/Fuerza_bruta/y_train_mnist_fashion.npy
+/dataset_cluster/X_train_mnist.npy
+
+# --- Salidas crudas del grid-search de cluster (~34 GB) ---
+# Los snapshots G_history_*.npz/resultados_*.npz no son reproducibles sin el
+# cluster Habrok (ver jobs_cluster_habrok/, train_job.sh). Lo que sí se versiona
+# son los resumenes/derivados chicos (csv, json, png) que ya estan commiteados
+# dentro de cada subcarpeta de data_beta_grid_search_SP/resumen_por_INL/.
+/data_beta_grid_search_SP/**/*.npz
+/MLP_test_SP/*.npz
+
+# --- Papers de terceros (no redistribuir; citar en su lugar) ---
+/papers/prezioso2015.pdf
+/papers/ncomms3072.pdf
+/Fuerza_bruta/papers/
+
+# --- Basura de entorno / compilacion ---
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+*.aux
+*.log
+*.out
+*.toc
+.vscode/
+compile_tmp.log

@@ -1,0 +1,26 @@
+{
+  "experiment_id_base": "bn1_beta300",
+  "timestamp_inicio": "20260912_040627",
+  "seed": 35,
+  "n_betas_totales": 1,
+  "corridas": [
+    {
+      "indice": 0,
+      "beta": 300.0,
+      "beta_tag": "b300",
+      "estado": "completo",
+      "experiment_id": "bn1_beta300_beta00_b300",
+      "archivo_resultados": "resultados_bn1_beta300_beta00_b300.npz",
+      "archivo_configuracion": "config_bn1_beta300_beta00_b300.json",
+      "acc_final_ultima_serie_por_fold": [
+        0.6629999876022339,
+        0.64041668176651,
+        0.6462500095367432,
+        0.6507499814033508,
+        0.6520833373069763
+      ],
+      "tiempo_transcurrido_s": 619.8
+    }
+  ],
+  "ultima_actualizacion": "20260912_041647"
+}

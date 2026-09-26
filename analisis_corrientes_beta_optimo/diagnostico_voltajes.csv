@@ -1,0 +1,6 @@
+cantidad,valor
+"E[V] (voltajes unicos, equipesados, como en el script)",0.5
+"E[V] (X_train real, todos los pixeles, pesado por frecuencia)",0.1306604762738431
+"V_rms (voltajes unicos, equipesados)",0.5779160216714667
+V_rms (X_train real),0.3346678634965717
+fraccion de pixeles == 0 en X_train real,0.8087977040816327

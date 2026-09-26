@@ -1,0 +1,139 @@
+{
+  "seed": 35,
+  "sistema": "SP",
+  "fecha": "1_09_2026",
+  "dataset": {
+    "X": "X_train_mnist.npy",
+    "y": "y_train_mnist.npy",
+    "amplitud_imagen": 1
+  },
+  "arquitectura": {
+    "sizes": [
+      784,
+      10
+    ],
+    "fixed": false,
+    "G0_distribution": "random",
+    "device": "cpu"
+  },
+  "curva_pd": {
+    "pulsos_pot": 200,
+    "pulsos_dep": 200,
+    "a_pot": 197.99,
+    "a_dep": 197.99,
+    "concavidad_pot": "pos",
+    "concavidad_dep": "neg",
+    "Rlow": 1000,
+    "Rhigh": 10000,
+    "Gmin": 0.0001,
+    "Gmax": 0.001,
+    "ratio": 10,
+    "inl_pot": 0.009996308077117336,
+    "inl_dep": 0.00999039752961476
+  },
+  "entrenamiento": {
+    "series": 20,
+    "epochs": 100,
+    "k_folds": 5,
+    "batch_number": 32,
+    "lr": 1,
+    "criterion": "CrossEntropyLoss"
+  },
+  "folds": {
+    "modo": "particion_distinta_por_serie_reusada_entre_betas",
+    "fold_seeds_por_serie": [
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54
+    ]
+  },
+  "protocolo_electrico": {
+    "delta_t_forward": 1e-08,
+    "delta_t_pulse": 1e-08,
+    "Vr": -1,
+    "Vs": 1
+  },
+  "ruido": {
+    "porcentaje_maximo": 0,
+    "porcentaje_minimo": 0
+  },
+  "guardado": {
+    "save_G_every": 1,
+    "archivo_resultados": "resultados_SP_1_09_2026_job31070590_beta04_b200.npz",
+    "archivo_configuracion": "config_SP_1_09_2026_job31070590_beta04_b200.json"
+  },
+  "busqueda_beta_automatica": {
+    "optimize_beta": false,
+    "beta_inicial": 260.0,
+    "beta_max": 300,
+    "points_beta": 2,
+    "best_beta_search": 260.0,
+    "best_acc_search": 0
+  },
+  "software": {
+    "python": "3.6.8",
+    "torch": "1.10.2+cu102",
+    "numpy": "1.19.5",
+    "platform": "Linux-4.18.0-553.150.1.el8_10.x86_64-x86_64-with-almalinux-8.10-Cerulean_Leopard"
+  },
+  "experiment_id": "SP_1_09_2026_job31070590_beta04_b200",
+  "timestamp_inicio": "20260902_070313",
+  "beta": {
+    "valor": 200.0,
+    "indice_grilla": 4,
+    "tag": "b200"
+  },
+  "progreso": {
+    "series_completadas": 20,
+    "series_totales": 20,
+    "estado": "completo",
+    "ultima_actualizacion": "20260902_113420",
+    "tiempo_transcurrido_s": 16266.0,
+    "acc_final_ultima_serie_por_fold": [
+      0.9043333530426025,
+      0.9040833115577698,
+      0.9042500257492065,
+      0.9089999794960022,
+      0.9039166569709778
+    ],
+    "archivos_G_history": [
+      "G_history_SP_1_09_2026_job31070590_beta04_b200_serie000.npz",
+      "G_history_SP_1_09_2026_job31070590_beta04_b200_serie001.npz",
+      "G_history_SP_1_09_2026_job31070590_beta04_b200_serie002.npz",
+      "G_history_SP_1_09_2026_job31070590_beta04_b200_serie003.npz",
+      "G_history_SP_1_09_2026_job31070590_beta04_b200_serie004.npz",
+      "G_history_SP_1_09_2026_job31070590_beta04_b200_serie005.npz",
+      "G_history_SP_1_09_2026_job31070590_beta04_b200_serie006.npz",
+      "G_history_SP_1_09_2026_job31070590_beta04_b200_serie007.npz",
+      "G_history_SP_1_09_2026_job31070590_beta04_b200_serie008.npz",
+      "G_history_SP_1_09_2026_job31070590_beta04_b200_serie009.npz",
+      "G_history_SP_1_09_2026_job31070590_beta04_b200_serie010.npz",
+      "G_history_SP_1_09_2026_job31070590_beta04_b200_serie011.npz",
+      "G_history_SP_1_09_2026_job31070590_beta04_b200_serie012.npz",
+      "G_history_SP_1_09_2026_job31070590_beta04_b200_serie013.npz",
+      "G_history_SP_1_09_2026_job31070590_beta04_b200_serie014.npz",
+      "G_history_SP_1_09_2026_job31070590_beta04_b200_serie015.npz",
+      "G_history_SP_1_09_2026_job31070590_beta04_b200_serie016.npz",
+      "G_history_SP_1_09_2026_job31070590_beta04_b200_serie017.npz",
+      "G_history_SP_1_09_2026_job31070590_beta04_b200_serie018.npz",
+      "G_history_SP_1_09_2026_job31070590_beta04_b200_serie019.npz"
+    ]
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "seed": 35,
+  "sistema": "SP",
+  "fecha": "1_09_2026",
+  "dataset": {
+    "X": "X_train_mnist.npy",
+    "y": "y_train_mnist.npy",
+    "amplitud_imagen": 1
+  },
+  "arquitectura": {
+    "sizes": [
+      784,
+      10
+    ],
+    "fixed": false,
+    "G0_distribution": "random",
+    "device": "cpu"
+  },
+  "curva_pd": {
+    "pulsos_pot": 50,
+    "pulsos_dep": 50,
+    "a_pot": 5.85,
+    "a_dep": 5.85,
+    "concavidad_pot": "pos",
+    "concavidad_dep": "neg",
+    "Rlow": 1000,
+    "Rhigh": 10000,
+    "Gmin": 0.0001,
+    "Gmax": 0.001,
+    "ratio": 10,
+    "inl_pot": 0.1999355340856478,
+    "inl_dep": 0.1999339300139406
+  },
+  "entrenamiento": {
+    "series": 1,
+    "epochs": 100,
+    "k_folds": 5,
+    "batch_number": 1,
+    "lr": 1,
+    "criterion": "CrossEntropyLoss"
+  },
+  "folds": {
+    "modo": "particion_distinta_por_serie_reusada_entre_betas",
+    "fold_seeds_por_serie": [
+      35
+    ]
+  },
+  "protocolo_electrico": {
+    "delta_t_forward": 1e-08,
+    "delta_t_pulse": 1e-08,
+    "Vr": -1,
+    "Vs": 1
+  },
+  "ruido": {
+    "porcentaje_maximo": 0,
+    "porcentaje_minimo": 0
+  },
+  "guardado": {
+    "save_G_every": 1,
+    "archivo_resultados": "resultados_bn1_beta100_beta00_b100.npz",
+    "archivo_configuracion": "config_bn1_beta100_beta00_b100.json"
+  },
+  "busqueda_beta_automatica": {
+    "optimize_beta": false,
+    "metodo": "search_best_beta_mejorado",
+    "beta_inicial": 54.687003745067244,
+    "best_beta_search": 54.687003745067244,
+    "best_acc_search": 0,
+    "info": null
+  },
+  "software": {
+    "python": "3.12.7",
+    "torch": "2.5.1",
+    "numpy": "1.26.4",
+    "platform": "Windows-10-10.0.19045-SP0"
+  },
+  "experiment_id": "bn1_beta100_beta00_b100",
+  "timestamp_inicio": "20260912_035537",
+  "beta": {
+    "valor": 100.0,
+    "indice_grilla": 0,
+    "tag": "b100"
+  },
+  "progreso": {
+    "series_completadas": 1,
+    "series_totales": 1,
+    "estado": "completo",
+    "ultima_actualizacion": "20260912_040624",
+    "tiempo_transcurrido_s": 646.4,
+    "acc_final_ultima_serie_por_fold": [
+      0.6472499966621399,
+      0.624750018119812,
+      0.6324166655540466,
+      0.6312500238418579,
+      0.6424166560173035
+    ],
+    "archivos_G_history": [
+      "G_history_bn1_beta100_beta00_b100_serie000.npz"
+    ]
+  }
+}

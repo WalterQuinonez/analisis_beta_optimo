@@ -1,0 +1,7 @@
+mandar job: sbatch train_job.sh
+cancelar trabajo: scancel ID_JOB
+ver trabajos enviados: squeue -u p320348
+ver cuota disco duro: hbquota
+comprimir carpeteta: tar -czvf beta_grid_search_SP.tar.gz beta_grid_search_SP/
+contar elementos en una carpeta: find . -mindepth 1 -maxdepth 1 | wc -l
+para eliminar caracteres de DOS (en archivos .sh):  dos2unix file

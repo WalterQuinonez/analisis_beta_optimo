@@ -1,0 +1,18 @@
+{
+  "experiment_id_base": "SP_1_09_2026_20260912_160256",
+  "timestamp_inicio": "20260912_160256",
+  "seed": 35,
+  "n_betas_totales": 1,
+  "corridas": [
+    {
+      "indice": 0,
+      "beta": 30000.0,
+      "beta_tag": "b3e+04",
+      "estado": "en_curso",
+      "experiment_id": "SP_1_09_2026_20260912_160256_beta00_b3e+04",
+      "archivo_resultados": "resultados_SP_1_09_2026_20260912_160256_beta00_b3e+04.npz",
+      "archivo_configuracion": "config_SP_1_09_2026_20260912_160256_beta00_b3e+04.json"
+    }
+  ],
+  "ultima_actualizacion": "20260912_160257"
+}

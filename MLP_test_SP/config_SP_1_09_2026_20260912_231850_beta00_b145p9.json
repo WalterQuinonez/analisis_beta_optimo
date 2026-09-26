@@ -1,0 +1,127 @@
+{
+  "seed": 35,
+  "sistema": "SP",
+  "fecha": "1_09_2026",
+  "dataset": {
+    "X": "X_train_mnist.npy",
+    "y": "y_train_mnist.npy",
+    "amplitud_imagen": 1
+  },
+  "arquitectura": {
+    "sizes": [
+      784,
+      10
+    ],
+    "fixed": false,
+    "G0_distribution": "random",
+    "device": "cpu"
+  },
+  "curva_pd": {
+    "pulsos_pot": 50,
+    "pulsos_dep": 50,
+    "a_pot": 10000,
+    "a_dep": 10000,
+    "concavidad_pot": "pos",
+    "concavidad_dep": "neg",
+    "Rlow": 1000,
+    "Rhigh": 10000,
+    "Gmin": 0.0001,
+    "Gmax": 0.001,
+    "ratio": 10,
+    "inl_pot": 2.47138408086622e-07,
+    "inl_dep": 2.4610235962599456e-07
+  },
+  "entrenamiento": {
+    "series": 1,
+    "epochs": 300,
+    "k_folds": 5,
+    "batch_number": 32,
+    "lr": 1,
+    "criterion": "CrossEntropyLoss"
+  },
+  "folds": {
+    "modo": "particion_distinta_por_serie_reusada_entre_betas",
+    "fold_seeds_por_serie": [
+      35
+    ]
+  },
+  "protocolo_electrico": {
+    "delta_t_forward": 1e-08,
+    "delta_t_pulse": 1e-08,
+    "Vr": -1,
+    "Vs": 1
+  },
+  "ruido": {
+    "porcentaje_maximo": 0,
+    "porcentaje_minimo": 0
+  },
+  "guardado": {
+    "save_G_every": 1,
+    "archivo_resultados": "resultados_SP_1_09_2026_20260912_231850_beta00_b145p9.npz",
+    "archivo_configuracion": "config_SP_1_09_2026_20260912_231850_beta00_b145p9.json"
+  },
+  "busqueda_beta_automatica": {
+    "optimize_beta": true,
+    "metodo": "search_best_beta_mejorado",
+    "beta_inicial": 30000.0,
+    "best_beta_search": 145.8605339389073,
+    "best_acc_search": 0.8871111111111111,
+    "info": {
+      "beta_pred_formula": 315.0761804014973,
+      "sigma_W": 0.00035976283834315836,
+      "paso_medio": 1.8000899217440747e-05,
+      "betas": [
+        78.76904510037431,
+        107.18812889587386,
+        145.8605339389073,
+        198.4855560041604,
+        270.09715978951294,
+        367.54551411706973,
+        500.15226021945915,
+        680.6021942712529,
+        926.1566600610594,
+        1260.3047216059895
+      ],
+      "acc_mean_por_beta": [
+        0.8583888888888889,
+        0.8770555555555556,
+        0.8871111111111111,
+        0.8857777777777778,
+        0.8815277777777778,
+        0.8536111111111112,
+        0.8192222222222222,
+        0.7832222222222223,
+        0.7433055555555556,
+        0.6978888888888889
+      ],
+      "meseta_1se": [
+        145.8605339389073,
+        198.4855560041604
+      ],
+      "k_folds_busqueda": 3,
+      "epochs_busqueda": 8,
+      "expansiones": 0,
+      "margen_final_bajo": 4.0,
+      "margen_final_alto": 4.0
+    }
+  },
+  "software": {
+    "python": "3.12.7",
+    "torch": "2.5.1",
+    "numpy": "1.26.4",
+    "platform": "Windows-10-10.0.19045-SP0"
+  },
+  "experiment_id": "SP_1_09_2026_20260912_231850_beta00_b145p9",
+  "timestamp_inicio": "20260912_231850",
+  "beta": {
+    "valor": 145.8605339389073,
+    "indice_grilla": 0,
+    "tag": "b145p9"
+  },
+  "progreso": {
+    "series_completadas": 0,
+    "series_totales": 1,
+    "estado": "en_curso",
+    "ultima_actualizacion": "20260912_232318"
+  }
+}

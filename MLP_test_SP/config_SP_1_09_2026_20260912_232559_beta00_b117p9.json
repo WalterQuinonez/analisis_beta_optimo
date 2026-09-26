@@ -1,0 +1,137 @@
+{
+  "seed": 35,
+  "sistema": "SP",
+  "fecha": "1_09_2026",
+  "dataset": {
+    "X": "X_train_mnist.npy",
+    "y": "y_train_mnist.npy",
+    "amplitud_imagen": 1
+  },
+  "arquitectura": {
+    "sizes": [
+      784,
+      10
+    ],
+    "fixed": false,
+    "G0_distribution": "random",
+    "device": "cpu"
+  },
+  "curva_pd": {
+    "pulsos_pot": 100,
+    "pulsos_dep": 100,
+    "a_pot": 8,
+    "a_dep": 8,
+    "concavidad_pot": "pos",
+    "concavidad_dep": "neg",
+    "Rlow": 1000,
+    "Rhigh": 10000,
+    "Gmin": 0.0001,
+    "Gmax": 0.001,
+    "ratio": 10,
+    "inl_pot": 0.24632656952422838,
+    "inl_dep": 0.24632654547915736
+  },
+  "entrenamiento": {
+    "series": 1,
+    "epochs": 300,
+    "k_folds": 5,
+    "batch_number": 32,
+    "lr": 1,
+    "criterion": "CrossEntropyLoss"
+  },
+  "folds": {
+    "modo": "particion_distinta_por_serie_reusada_entre_betas",
+    "fold_seeds_por_serie": [
+      35
+    ]
+  },
+  "protocolo_electrico": {
+    "delta_t_forward": 1e-08,
+    "delta_t_pulse": 1e-08,
+    "Vr": -1,
+    "Vs": 1
+  },
+  "ruido": {
+    "porcentaje_maximo": 0,
+    "porcentaje_minimo": 0
+  },
+  "guardado": {
+    "save_G_every": 1,
+    "archivo_resultados": "resultados_SP_1_09_2026_20260912_232559_beta00_b117p9.npz",
+    "archivo_configuracion": "config_SP_1_09_2026_20260912_232559_beta00_b117p9.json"
+  },
+  "busqueda_beta_automatica": {
+    "optimize_beta": true,
+    "metodo": "search_best_beta_mejorado",
+    "beta_inicial": 30000.0,
+    "best_beta_search": 117.94281736880951,
+    "best_acc_search": 0.8700277777777777,
+    "info": {
+      "beta_pred_formula": 101.1057705101508,
+      "sigma_W": 0.0005985652096569538,
+      "paso_medio": 9.090905223274603e-06,
+      "betas": [
+        25.276442627537694,
+        34.395930367534646,
+        46.80563809083533,
+        63.69264426578963,
+        86.6723134015504,
+        117.94281736880951,
+        160.4954064678688,
+        218.40054419539788,
+        297.1972765737395,
+        404.4230820406033
+      ],
+      "acc_mean_por_beta": [
+        0.7972222222222222,
+        0.8130833333333333,
+        0.82825,
+        0.8425555555555556,
+        0.8588333333333334,
+        0.8700277777777777,
+        0.8504166666666667,
+        0.8369166666666666,
+        0.8041111111111111,
+        0.5540555555555555
+      ],
+      "meseta_1se": [
+        117.94281736880951
+      ],
+      "k_folds_busqueda": 3,
+      "epochs_busqueda": 8,
+      "expansiones": 0,
+      "margen_final_bajo": 4.0,
+      "margen_final_alto": 4.0
+    }
+  },
+  "software": {
+    "python": "3.12.7",
+    "torch": "2.5.1",
+    "numpy": "1.26.4",
+    "platform": "Windows-10-10.0.19045-SP0"
+  },
+  "experiment_id": "SP_1_09_2026_20260912_232559_beta00_b117p9",
+  "timestamp_inicio": "20260912_232559",
+  "beta": {
+    "valor": 117.94281736880951,
+    "indice_grilla": 0,
+    "tag": "b117p9"
+  },
+  "progreso": {
+    "series_completadas": 1,
+    "series_totales": 1,
+    "estado": "completo",
+    "ultima_actualizacion": "20260913_000117",
+    "tiempo_transcurrido_s": 1849.9,
+    "acc_final_ultima_serie_por_fold": [
+      0.8705000281333923,
+      0.8549166917800903,
+      0.8509166836738586,
+      0.8569999933242798,
+      0.8642500042915344
+    ],
+    "archivos_G_history": [
+      "G_history_SP_1_09_2026_20260912_232559_beta00_b117p9_serie000.npz"
+    ]
+  }
+}

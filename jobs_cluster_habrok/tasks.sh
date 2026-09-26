@@ -1,0 +1,1 @@
+-czvf beta_grid_search_SP.tar.gz beta_grid_search_SP/

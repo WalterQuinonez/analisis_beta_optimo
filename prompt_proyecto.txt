@@ -1,0 +1,19 @@
+The final project
+Take a problem of your own and do the whole of it using agents, with the provenance written down as you go, and with enough evidence at the end that you would defend the result to somebody who did not watch you produce it.
+
+One word, before it is used below. The PROVENANCE of a result is the record of where it came from - which file and which function produced it, what went in, what was written from scratch against what was called out of a library, and every choice that had a defensible alternative.
+
+Choosing the problem
+Pick something from your own research, or a gravitational-wave problem based on what the week covered. Either is fine and the first is usually better, because you can tell whether the answer is right.
+
+It is worth choosing one with many components - an analytic derivation, code, figures, data.
+
+Doing the work
+Have the agent do the calculations and the figures, and have it document the provenance of every one of them as it goes, along with how each result was checked. Both halves matter and the second is the one that gets skipped: a figure with a recorded origin and no check behind it is still only an assertion with a picture beside it.
+
+Ultimately you are responsible for it being correct, exactly as you would be in any other piece of work. So produce enough artefacts that you are actually confident: not enough to look thorough, enough that you would stand behind the result. That judgement is yours and there is no rule for it, which is the point.
+
+What you hand over
+Everything goes in a GitHub repository. Inside it, two things you present from - an HTML page and a PDF - and the rest of the repository behind them. The HTML page will be linked to a general page with the results from all projects.
+
+The split is deliberate. The page and the PDF are for people; the repository is for machines. Anyone who clones it should be able to reproduce all of it with an agent, which means the instructions, the environment, the data and the checks are in there and are readable by something that has never spoken to you.

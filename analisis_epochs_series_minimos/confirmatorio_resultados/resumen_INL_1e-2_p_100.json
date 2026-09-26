@@ -1,0 +1,15 @@
+{
+  "combo": "INL_1e-2_p_100",
+  "protocolo": {
+    "series": 8,
+    "epochs": 8,
+    "k_folds": 3,
+    "n_betas_grilla": 16,
+    "seed": 9035
+  },
+  "beta_optimo_confirmatorio": 300,
+  "acc_optimo_confirmatorio": 0.9081000685691833,
+  "beta_optimo_ground_truth": 350.0,
+  "acc_ground_truth": 0.909067,
+  "tiempo_total_s": 3400.1
+}

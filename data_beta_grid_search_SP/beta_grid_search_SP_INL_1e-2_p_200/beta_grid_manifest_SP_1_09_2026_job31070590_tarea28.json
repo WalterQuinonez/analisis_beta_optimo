@@ -1,0 +1,26 @@
+{
+  "experiment_id_base": "SP_1_09_2026_job31070590",
+  "timestamp_inicio": "20260902_070316",
+  "seed": 35,
+  "n_betas_totales": 40,
+  "corridas": [
+    {
+      "indice": 28,
+      "beta": 1400.0,
+      "beta_tag": "b1400",
+      "estado": "completo",
+      "experiment_id": "SP_1_09_2026_job31070590_beta28_b1400",
+      "archivo_resultados": "resultados_SP_1_09_2026_job31070590_beta28_b1400.npz",
+      "archivo_configuracion": "config_SP_1_09_2026_job31070590_beta28_b1400.json",
+      "acc_final_ultima_serie_por_fold": [
+        0.9167500138282776,
+        0.9143333435058594,
+        0.9159166812896729,
+        0.893750011920929,
+        0.9069166779518127
+      ],
+      "tiempo_transcurrido_s": 19316.0
+    }
+  ],
+  "ultima_actualizacion": "20260902_122513"
+}

@@ -1,0 +1,36 @@
+Valores de a_pot = a_dep para INL objetivo (busqueda de raiz sobre inl_dep)
+Fecha: 2026-09-06
+
+Metodo: igual que valores_a_pot_a_dep_para_INL_objetivo.md
+  - Script de referencia: plot_PDcurves.py
+  - Funciones: generar_curvas_pot_dep() / calcular_indice_nl() de
+    MemCrossbarClass_beta_por_capa.py, replicadas en NumPy puro
+  - Busqueda de raiz (brentq, SciPy) sobre a_pot=a_dep para que
+    inl_dep(a, pulsos) reproduzca el INL objetivo
+  - Parametros fijos: Rhigh=10000 ohm, Rlow=1000 ohm -> Gmin=1e-4 S, Gmax=1e-3 S
+    concavidad_pot='pos', concavidad_dep='neg', a_pot = a_dep
+
++--------------+----------+----------------+--------------------+
+| INL objetivo | pulsos   | a_pot = a_dep  | INL resultante     |
++--------------+----------+----------------+--------------------+
+|    5e-02     |    50    |     19.93      |  5.0000000000e-02  |
+|    5e-02     |   100    |     40.29      |  5.0000000000e-02  |
+|    5e-02     |   200    |     81.00      |  5.0000000000e-02  |
++--------------+----------+----------------+--------------------+
+|    5e-03     |    50    |     69.51      |  5.0000000000e-03  |
+|    5e-03     |   100    |    140.58      |  5.0000000000e-03  |
+|    5e-03     |   200    |    282.70      |  5.0000000000e-03  |
++--------------+----------+----------------+--------------------+
+|    5e-04     |    50    |    221.69      |  5.0000000000e-04  |
+|    5e-04     |   100    |    448.47      |  5.0000000000e-04  |
+|    5e-04     |   200    |    901.95      |  5.0000000000e-04  |
++--------------+----------+----------------+--------------------+
+|    5e-05     |    50    |    701.56      |  5.0000000000e-05  |
+|    5e-05     |   100    |   1419.32      |  5.0000000000e-05  |
+|    5e-05     |   200    |   2854.65      |  5.0000000000e-05  |
++--------------+----------+----------------+--------------------+
+
+Nota: la busqueda ajusta por inl_dep (mismo criterio que la tabla principal
+de valores_a_pot_a_dep_para_INL_objetivo.md). inl_pot no es identico a
+inl_dep para el mismo 'a' (pequena asimetria en calcular_indice_nl), pero
+la diferencia es despreciable para estos fines.

@@ -1,0 +1,12 @@
+# Dependencias minimas para correr los scripts del hilo "formula de beta optimo"
+# (validacion_formula_beta_optimo/, formula_beta_optimo_propuesta/,
+#  reconstruccion_beta_optimo_18curvas/, reconstruccion_beta_optimo_30curvas/,
+#  mejora_search_best_beta/, analisis_corrientes_beta_optimo/, y el codigo base
+#  MemCrossbarClass_beta_por_capa.py / Crossbar_train_experimento_beta_por_capa.py).
+#
+# Antes de la entrega final, fijar versiones exactas del entorno real de trabajo
+# con: pip freeze > requirements-lock.txt
+numpy
+torch
+matplotlib
+scikit-learn

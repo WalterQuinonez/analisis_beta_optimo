@@ -1,0 +1,175 @@
+{
+  "seed": 35,
+  "sistema": "SP",
+  "fecha": "1_09_2026",
+  "dataset": {
+    "X": "X_train_mnist.npy",
+    "y": "y_train_mnist.npy",
+    "amplitud_imagen": 1
+  },
+  "arquitectura": {
+    "sizes": [
+      784,
+      10
+    ],
+    "fixed": false,
+    "G0_distribution": "random",
+    "device": "cpu"
+  },
+  "curva_pd": {
+    "pulsos_pot": 50,
+    "pulsos_dep": 50,
+    "a_pot": 5.85,
+    "a_dep": 5.85,
+    "concavidad_pot": "pos",
+    "concavidad_dep": "neg",
+    "Rlow": 1000,
+    "Rhigh": 10000,
+    "Gmin": 0.0001,
+    "Gmax": 0.001,
+    "ratio": 10,
+    "inl_pot": 0.1999355340856478,
+    "inl_dep": 0.1999339300139406
+  },
+  "entrenamiento": {
+    "series": 1,
+    "epochs": 100,
+    "k_folds": 5,
+    "batch_number": 1,
+    "lr": 1,
+    "criterion": "CrossEntropyLoss"
+  },
+  "folds": {
+    "modo": "particion_distinta_por_serie_reusada_entre_betas",
+    "fold_seeds_por_serie": [
+      35
+    ]
+  },
+  "protocolo_electrico": {
+    "delta_t_forward": 1e-08,
+    "delta_t_pulse": 1e-08,
+    "Vr": -1,
+    "Vs": 1
+  },
+  "ruido": {
+    "porcentaje_maximo": 0,
+    "porcentaje_minimo": 0
+  },
+  "guardado": {
+    "save_G_every": 1,
+    "archivo_resultados": "resultados_serie1_bn1_beta00_b1389.npz",
+    "archivo_configuracion": "config_serie1_bn1_beta00_b1389.json"
+  },
+  "busqueda_beta_automatica": {
+    "optimize_beta": true,
+    "metodo": "search_best_beta_mejorado",
+    "beta_inicial": 54.687003745067244,
+    "best_beta_search": 1388.9633163825376,
+    "best_acc_search": 0.6710555555555556,
+    "info": {
+      "beta_pred_formula": 86.8102072739086,
+      "sigma_W": 0.0005469959578476846,
+      "paso_medio": 1.836668343457859e-05,
+      "betas": [
+        5.425637954619288,
+        10.04692196041627,
+        10.851275909238575,
+        17.225326793522495,
+        18.604381958946547,
+        21.70255181847715,
+        27.34350187253362,
+        29.532615492849953,
+        34.450653587045,
+        40.18768784166509,
+        43.405103636954316,
+        54.687003745067244,
+        63.79397795602878,
+        68.90130717408996,
+        74.4175278357862,
+        101.26662771663621,
+        109.3740074901345,
+        118.13046197139984,
+        137.80261434817993,
+        173.62041454781712,
+        187.52041960288938,
+        218.74801498026903,
+        255.17591182411505,
+        275.6052286963599,
+        347.2408290956344,
+        405.06651086654495,
+        437.4960299605381,
+        694.4816581912688,
+        750.0816784115577,
+        1388.9633163825376
+      ],
+      "acc_mean_por_beta": [
+        0.62575,
+        0.6258055555555555,
+        0.6259444444444444,
+        0.6260833333333333,
+        0.6260833333333333,
+        0.6261388888888889,
+        0.6266388888888889,
+        0.6266944444444444,
+        0.6266944444444443,
+        0.6267222222222222,
+        0.6267777777777778,
+        0.6277499999999999,
+        0.6280833333333332,
+        0.6284722222222222,
+        0.6285277777777778,
+        0.6294444444444445,
+        0.629638888888889,
+        0.6299444444444444,
+        0.6306111111111111,
+        0.6319166666666667,
+        0.6326944444444444,
+        0.6337777777777778,
+        0.6353333333333334,
+        0.63675,
+        0.640888888888889,
+        0.642361111111111,
+        0.6439722222222222,
+        0.6514444444444445,
+        0.6532777777777778,
+        0.6710555555555556
+      ],
+      "meseta_1se": [
+        1388.9633163825376
+      ],
+      "k_folds_busqueda": 3,
+      "epochs_busqueda": 8,
+      "expansiones": 2
+    }
+  },
+  "software": {
+    "python": "3.12.7",
+    "torch": "2.5.1",
+    "numpy": "1.26.4",
+    "platform": "Windows-10-10.0.19045-SP0"
+  },
+  "experiment_id": "serie1_bn1_beta00_b1389",
+  "timestamp_inicio": "20260912_021954",
+  "beta": {
+    "valor": 1388.9633163825376,
+    "indice_grilla": 0,
+    "tag": "b1389"
+  },
+  "progreso": {
+    "series_completadas": 1,
+    "series_totales": 1,
+    "estado": "completo",
+    "ultima_actualizacion": "20260912_024331",
+    "tiempo_transcurrido_s": 641.7,
+    "acc_final_ultima_serie_por_fold": [
+      0.7095833420753479,
+      0.6949166655540466,
+      0.6994166374206543,
+      0.6977499723434448,
+      0.7003333568572998
+    ],
+    "archivos_G_history": [
+      "G_history_serie1_bn1_beta00_b1389_serie000.npz"
+    ]
+  }
+}

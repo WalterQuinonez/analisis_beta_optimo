@@ -1,0 +1,40 @@
+Valores de a_pot = a_dep para INL objetivo (busqueda de raiz sobre inl_dep)
+Fecha: 2026-09-07
+
+Zona de transicion: relleno entre INL=5e-2 y INL=2e-1, donde beta_optimo
+cae bruscamente en el grafico beta_optimo_vs_INL.png (de ~600-750 a
+~100-200 para las 3 curvas de pulsos).
+
+Metodo: igual que valores_a_pot_a_dep_para_INL_objetivo.md
+  - Script de referencia: plot_PDcurves.py
+  - Funciones: generar_curvas_pot_dep() / calcular_indice_nl() de
+    MemCrossbarClass_beta_por_capa.py, usadas directamente (no replicadas)
+  - Busqueda de raiz (brentq, SciPy) sobre a_pot=a_dep para que
+    inl_dep(a, pulsos) reproduzca el INL objetivo
+  - Parametros fijos: Rhigh=10000 ohm, Rlow=1000 ohm -> Gmin=1e-4 S, Gmax=1e-3 S
+    concavidad_pot='pos', concavidad_dep='neg', a_pot = a_dep
+
++--------------+----------+----------------+--------------------+
+| INL objetivo | pulsos   | a_pot = a_dep  | INL resultante     |
++--------------+----------+----------------+--------------------+
+|    7e-02     |    50    |     16.02      |  7.0000000000e-02  |
+|    7e-02     |   100    |     32.39      |  7.0000000000e-02  |
+|    7e-02     |   200    |     65.12      |  7.0000000000e-02  |
++--------------+----------+----------------+--------------------+
+|    1e-01     |    50    |     12.33      |  1.0000000000e-01  |
+|    1e-01     |   100    |     24.92      |  1.0000000000e-01  |
+|    1e-01     |   200    |     50.09      |  1.0000000000e-01  |
++--------------+----------+----------------+--------------------+
+|    1.3e-01   |    50    |      9.81      |  1.3000000000e-01  |
+|    1.3e-01   |   100    |     19.83      |  1.3000000000e-01  |
+|    1.3e-01   |   200    |     39.86      |  1.3000000000e-01  |
++--------------+----------+----------------+--------------------+
+|    1.6e-01   |    50    |      7.89      |  1.6000000000e-01  |
+|    1.6e-01   |   100    |     15.94      |  1.6000000000e-01  |
+|    1.6e-01   |   200    |     32.05      |  1.6000000000e-01  |
++--------------+----------+----------------+--------------------+
+
+Nota: la busqueda ajusta por inl_dep (mismo criterio que la tabla principal
+de valores_a_pot_a_dep_para_INL_objetivo.md). inl_pot no es identico a
+inl_dep para el mismo 'a' (pequena asimetria en calcular_indice_nl), pero
+la diferencia es despreciable para estos fines.

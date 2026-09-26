@@ -1,0 +1,166 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-noshorthands]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue]{hyperref}
+\usepackage{caption}
+\usepackage{parskip}
+\usepackage[expansion=false]{microtype}
+\sloppy
+
+\title{\textbf{¿Sigue funcionando \texttt{search\_best\_beta\_mejorado} fuera de su rango de conductancia calibrado?}\\
+\large Validación de la búsqueda de beta y de la fórmula analítica para ratios $G_{\max}/G_{\min}\in\{2,20,100\}$}
+\author{Walter Quiñonez}
+\date{Reporte generado con Claude Code \textperiodcentered\ 10 de septiembre de 2026}
+
+\begin{document}
+\maketitle
+
+\begin{quote}\itshape
+\texttt{MemDNNMejorado.search\_best\_beta()} (\texttt{mejora\_search\_best\_beta/}) y la fórmula
+analítica que centra su grilla (\texttt{beta\_pred\_formula}) se calibraron y validaron con el
+rango de conductancia fijo de todo el proyecto ($R_{\text{low}}=1000\,\Omega$,
+$R_{\text{high}}=10000\,\Omega \Rightarrow$ ratio $G_{\max}/G_{\min}=10$). Esta corrida prueba
+si siguen funcionando cuando ese rango cambia (ratio $\in\{2,20,100\}$, con INL de la curva
+P/D casi constante para aislar el efecto del rango de conductancia). Conclusión: \textbf{sí}
+--- el regret del beta elegido se mantiene por debajo de 0.52pp en los tres ratios, incluso en
+ratio=2, donde la fórmula subestima el beta óptimo real por un factor $\sim$5.9$\times$ y la
+red de seguridad (expansión automática de la grilla) es la que sostiene la precisión.
+\end{quote}
+
+\tableofcontents
+
+\section{Pregunta y metodología}
+
+Para cada ratio $G_{\max}/G_{\min}\in\{2,20,100\}$ ($R_{\text{low}}=1000\,\Omega$ fijo,
+$R_{\text{high}}=R_{\text{low}}\cdot\text{ratio}$; ratio=10 ya está validado en
+\texttt{mejora\_search\_best\_beta/}, no se repite acá):
+
+\begin{enumerate}
+\item \textbf{Referencia} (independiente de la fórmula): grilla ancha y fija de 10 betas
+log-espaciados en $[20,8000]$, evaluada con el protocolo mínimo validado en
+\texttt{analisis\_epochs\_series\_minimos/} (Fase 3: series=8, k\_folds=3, epochs=8). El beta
+con mayor accuracy media de esa grilla es el ``óptimo real'' de referencia para ese ratio.
+\item \textbf{Búsqueda mejorada}: se corre \texttt{search\_best\_beta} 3 veces con semillas
+distintas, y se compara el beta elegido contra la referencia (regret = accuracy de la
+referencia en su óptimo $-$ accuracy de la referencia en el punto de grilla más cercano al beta
+elegido).
+\end{enumerate}
+
+INL$_{\text{pot}}$ se mantuvo prácticamente constante entre ratios (0.0101 para ratio=20 y
+ratio=100; documentado entre 0.0065 y 0.0101 para ratio 2..100 en el script), para aislar el
+efecto del rango de conductancia del efecto de no linealidad.
+
+Código: \texttt{estudiar\_rangos\_conductancia.py} (no modifica ningún archivo original del
+proyecto). Datos completos, verificables: \texttt{resultados\_rangos\_conductancia.json} y
+\texttt{referencia\_ratio\{2,20,100\}.json} en esta misma carpeta.
+
+\section{Resultados}
+
+\subsection{Grillas de referencia}
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Ratio $G_{\max}/G_{\min}$ & $\beta_{\text{óptimo referencia}}$ & acc.\ óptima referencia \\
+\midrule
+2   & 557.98 & 0.9074 \\
+20  & 286.75 & 0.9078 \\
+100 & 286.75 & 0.9079 \\
+\bottomrule
+\end{tabular}
+\caption{Óptimo de la grilla ancha y fija de 10 betas (log-espaciados en [20,8000]), protocolo
+mínimo. Ratio 20 y 100 caen en el mismo punto de esa grilla (resolución de la grilla, no
+necesariamente el mismo óptimo continuo); el accuracy en ese punto es prácticamente idéntico
+entre ambos.}
+\end{table}
+
+El óptimo real se corre hacia betas más chicos a medida que aumenta el ratio (más rango de
+conductancia disponible por bit de resolución), consistente con lo esperado.
+
+\subsection{Búsqueda mejorada: predicción de la fórmula vs.\ beta elegido}
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+Ratio & $\beta_{\text{pred (fórmula)}}$ & factor vs.\ real & expansiones & regret medio & regret peor caso \\
+\midrule
+2   & 3294.9 & 5.91$\times$ & 1 (las 3 corridas) & 0.09 pp & 0.27 pp \\
+20  & 315.6  & 1.10$\times$ & 0                   & 0.15 pp & 0.23 pp \\
+100 & 271.4  & 0.95$\times$ & 0                   & 0.17 pp & 0.51 pp \\
+\bottomrule
+\end{tabular}
+\caption{3 repeticiones (semillas nuevas) por ratio. ``factor vs.\ real'' =
+$\beta_{\text{pred (fórmula)}}/\beta_{\text{óptimo referencia}}$. Detalle de las 9 corridas en
+\texttt{resultados\_rangos\_conductancia.json}.}
+\end{table}
+
+\textbf{Ratio=2 es el caso interesante}: la fórmula (ajustada y validada solo en ratio=10)
+subestima el beta óptimo por casi 6$\times$ --- la extrapolación fuera de su rango de
+calibración falla claramente acá, mucho más que en ratio=20 o 100 (factores 1.10$\times$ y
+0.95$\times$, dentro del error ya documentado de la fórmula en \texttt{formula\_beta\_optimo\_propuesta/}).
+Sin embargo, la red de seguridad de \texttt{search\_best\_beta\_mejorado} (expansión automática
+del margen cuando el óptimo empírico cae en el borde de la grilla angosta) se activó en las 3
+corridas de ratio=2, y el beta finalmente elegido (653.8 u 823.7) quedó igual de cerca del
+óptimo real (557.98) que en los ratios donde la fórmula no falló: regret peor caso 0.27pp,
+comparable a los otros ratios. El costo de esa expansión es evaluar el doble de puntos de
+grilla: las búsquedas de ratio=2 tardaron $\approx$442s contra $\approx$235--248s de ratio=20/100
+sin expansión.
+
+\subsection{En contexto: los 4 ratios probados hasta hoy}
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Ratio $G_{\max}/G_{\min}$ & regret peor caso & fuente \\
+\midrule
+2 (este reporte)             & 0.27 pp & \texttt{resultados\_rangos\_conductancia.json} \\
+10 (calibración original)    & 0.45 pp & \texttt{mejora\_search\_best\_beta/resultados\_validacion.json} \\
+20 (este reporte)            & 0.23 pp & \texttt{resultados\_rangos\_conductancia.json} \\
+100 (este reporte)           & 0.51 pp & \texttt{resultados\_rangos\_conductancia.json} \\
+\bottomrule
+\end{tabular}
+\caption{El dato de ratio=10 viene de un protocolo de referencia distinto (ground truth de 100
+épocas/20 series/5 folds sobre 2 combos INL, no la grilla mínima de 10 puntos usada acá) -- no
+es estrictamente comparable número a número, pero da la misma conclusión cualitativa: regret
+peor caso siempre por debajo del umbral de 1pp que \texttt{analisis\_epochs\_series\_minimos/}
+estableció como aceptable.}
+\end{table}
+
+\section{Conclusión}
+
+La búsqueda mejorada de beta \textbf{sigue funcionando bien fuera del rango de conductancia con
+el que se calibró} (ratio=10), en los tres ratios adicionales probados (2, 20, 100): el regret
+del beta elegido contra la referencia nunca superó 0.51pp, muy por debajo del umbral de 1pp ya
+establecido como aceptable en este proyecto. Esto se sostiene incluso cuando la fórmula
+analítica que centra la grilla de búsqueda extrapola mal (ratio=2, factor $\sim$5.9$\times$):
+el mecanismo de expansión automática del margen compensa el error de la fórmula al costo de
+duplicar el número de puntos de grilla evaluados (y por lo tanto el tiempo de búsqueda) en ese
+régimen.
+
+\section{Limitaciones}
+
+\begin{itemize}
+\item La referencia usa una grilla fija de solo 10 betas log-espaciados (protocolo mínimo, no
+el ground truth completo de \texttt{data\_beta\_grid\_search\_SP/}), igual que se documenta en
+\texttt{estudiar\_rangos\_conductancia.py}; es suficiente para el protocolo ya validado pero no
+un ground truth perfecto.
+\item Ratio 20 y 100 dieron el mismo punto óptimo de referencia (286.75) -- posible efecto de
+la resolución de la grilla de referencia (10 puntos entre 20 y 8000) más que de que el óptimo
+continuo sea idéntico.
+\item El dato de ratio=10 usado como contexto viene de un protocolo distinto (ver tabla de la
+sección anterior), no es una corrida nueva con el mismo protocolo que ratio=2/20/100.
+\item Solo 3 repeticiones por ratio (igual que se especificó en el script), no las 5 usadas en
+la validación original de \texttt{mejora\_search\_best\_beta/}.
+\item Sigue sin optimizarse un beta distinto por capa (mismo alcance que el resto del proyecto).
+\end{itemize}
+
+\end{document}

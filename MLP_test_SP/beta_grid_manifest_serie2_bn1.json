@@ -1,0 +1,26 @@
+{
+  "experiment_id_base": "serie2_bn1",
+  "timestamp_inicio": "20260912_024334",
+  "seed": 35,
+  "n_betas_totales": 1,
+  "corridas": [
+    {
+      "indice": 0,
+      "beta": 1388.9633163825376,
+      "beta_tag": "b1389",
+      "estado": "completo",
+      "experiment_id": "serie2_bn1_beta00_b1389",
+      "archivo_resultados": "resultados_serie2_bn1_beta00_b1389.npz",
+      "archivo_configuracion": "config_serie2_bn1_beta00_b1389.json",
+      "acc_final_ultima_serie_por_fold": [
+        0.7105833292007446,
+        0.6995833516120911,
+        0.7019166946411133,
+        0.6963333487510681,
+        0.7011666893959045
+      ],
+      "tiempo_transcurrido_s": 627.5
+    }
+  ],
+  "ultima_actualizacion": "20260912_030721"
+}

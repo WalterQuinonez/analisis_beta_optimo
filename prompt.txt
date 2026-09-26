@@ -1,0 +1,27 @@
+Haz una primer exploracion de la dependencia del accuracy con el valor de beta para un crossbar con una capa intermedia de 100 neuronas y funciones de activacion Relu. 
+La exploracion se debe centrar en analizar si usar betas distintos para la capa latente y para la capa de salida mejora el accuracy o si tomar el mismo valor para 
+ambas capas es suficiente. 
+Usa primero el caso de curvas PD con los siguientes parametros (curva lineal)
+
+    "pulsos_pot": 100,
+    "pulsos_dep": 100,
+    "a_pot": 4567.9,
+    "a_dep": 4567.9,
+    "concavidad_pot": "pos",
+    "concavidad_dep": "neg",
+    "Rlow": 1000,
+    "Rhigh": 10000,
+
+
+y luego (no lineal)
+
+    "pulsos_pot": 100,
+    "pulsos_dep": 100,
+    "a_pot": 98.55,
+    "a_dep": 98.55,
+    "concavidad_pot": "pos",
+    "concavidad_dep": "neg",
+    "Rlow": 1000,
+    "Rhigh": 10000,
+
+Genera un reporte en pdf latex al finalizar. No modifiques ningun codigo existente, pero escribe todo el codigo nuevo que consideres necesario. 
